@@ -31,14 +31,14 @@
     "@angular/platform-browser-dynamic": "^20.3.16",
     "@angular/router": "^20.3.16",
     "g": "^2.0.1",
-    "npm-check-updates": "^16.14.12",
+    "npm-check-updates": "^23.0.0",
     "rxjs": "^7.8.1",
     "tslib": "^2.6.2",
     "zone.js": "^0.15.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^20.3.14",
-    "@angular/cli": "^20.3.14",
+    "@angular/cli": "^20.3.32",
     "@angular/compiler-cli": "^20.3.16",
     "@tweenjs/tween.js": "^23.1.1",
     "@types/jasmine": "^5.1.4",
