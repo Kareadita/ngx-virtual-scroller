@@ -417,11 +417,13 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
   public ngOnInit(): void {
     this.addScrollEventHandlers();
+    this.observeVisibility();
   }
 
   public ngOnDestroy(): void {
     this.destroyed = true;
     this.currentAnimation?.stop();
+    this.disposeVisibilityObserver?.();
     this.removeScrollEventHandlers();
     this.revertParentOverscroll();
   }
@@ -712,6 +714,35 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
   protected currentAnimation: ScrollAnimation | undefined;
   protected cachedItemsLength: number | undefined;
   protected destroyed = false;
+  protected refreshPendingWhileHidden = false;
+  protected itemsModifiedWhileHidden = false;
+  protected disposeVisibilityObserver: (() => void) | undefined;
+
+  /** True when the scroller isn't rendered, e.g. it sits in an inactive tab */
+  protected isHidden(): boolean {
+    return !this.isAngularUniversalSSR && this.element.nativeElement.getClientRects().length === 0;
+  }
+
+  /** Runs the refreshes skipped while hidden as soon as the scroller is shown again */
+  protected observeVisibility(): void {
+    if (this.isAngularUniversalSSR || typeof ResizeObserver !== 'function') {
+      return;
+    }
+
+    // Going from display: none to displayed changes the element's size, which fires the observer
+    const observer = new ResizeObserver(() => {
+      if (!this.refreshPendingWhileHidden || this.isHidden()) {
+        return;
+      }
+
+      const itemsArrayModified = this.itemsModifiedWhileHidden;
+      this.refreshPendingWhileHidden = false;
+      this.itemsModifiedWhileHidden = false;
+      this.refresh_internal(itemsArrayModified);
+    });
+    observer.observe(this.element.nativeElement);
+    this.disposeVisibilityObserver = () => observer.disconnect();
+  }
 
   protected disposeScrollHandler: (() => void) | undefined;
   protected disposeResizeHandler: (() => void) | undefined;
@@ -768,6 +799,16 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
     const refresh = () => {
       if (this.destroyed) {
+        return;
+      }
+
+      // A hidden scroller (display: none somewhere above it, like an inactive tab) can't measure its items. Measuring
+      // anyway would cache their 0px height as the item size, and the scroller would then render the whole list.
+      // Catch up once it is shown again (see observeVisibility).
+      if (this.isHidden()) {
+        this.refreshPendingWhileHidden = true;
+        this.itemsModifiedWhileHidden ||= itemsArrayModified;
+        refreshCompletedCallback?.();
         return;
       }
 
