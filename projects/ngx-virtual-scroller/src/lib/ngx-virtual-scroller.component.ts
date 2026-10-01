@@ -1,22 +1,23 @@
 import {
-    ApplicationRef,
-    ChangeDetectorRef,
-    Component,
-    ContentChild,
-    ElementRef,
-    EventEmitter,
-    Inject,
-    inject,
-    Input,
-    NgModule,
-    NgZone,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    Optional,
-    Output,
-    Renderer2,
-    ViewChild,
+  ApplicationRef,
+  ChangeDetectorRef,
+  Component,
+  ContentChild,
+  ElementRef,
+  EventEmitter,
+  Inject,
+  inject,
+  Input,
+  NgModule,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Optional,
+  Output,
+  Renderer2,
+  ViewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import {PLATFORM_ID} from '@angular/core';
@@ -172,6 +173,7 @@ export interface IViewport extends IPageInfo {
             height: 100%;
         }
     `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
