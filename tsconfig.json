@@ -2,7 +2,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
@@ -12,12 +11,6 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
-    "paths": {
-      "ngx-virtual-scroller": [
-        "dist/ngx-virtual-scroller/ngx-virtual-scroller",
-        "dist/ngx-virtual-scroller"
-      ]
-    },
     "declaration": false,
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
