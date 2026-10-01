@@ -22,7 +22,7 @@ import {
 import {PLATFORM_ID} from '@angular/core';
 import {isPlatformServer} from '@angular/common';
 
-import {CommonModule} from '@angular/common';
+
 
 import * as tween from '@tweenjs/tween.js'
 
