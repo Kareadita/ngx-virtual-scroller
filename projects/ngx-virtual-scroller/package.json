@@ -1,7 +1,10 @@
 {
-  "name": "@iharbeck/ngx-virtual-scroller",
-  "version": "19.0.1",
+  "name": "@kareadita/ngx-virtual-scroller",
+  "version": "20.0.1",
+  "description": "Virtual scroll component for Angular. Maintained fork of iharbeck/ngx-virtual-scroller",
   "peerDependencies": {
+    "@angular/common": ">=20.0.0 <23.0.0",
+    "@angular/core": ">=20.0.0 <23.0.0",
     "@tweenjs/tween.js": "^25.0.0"
   },
   "devDependencies": {
@@ -9,19 +12,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iharbeck/ngx-virtual-scroller.git"
+    "url": "git+https://github.com/Kareadita/ngx-virtual-scroller.git",
+    "directory": "projects/ngx-virtual-scroller"
   },
   "keywords": [
     "virtual scroll",
     "scroll",
     "ngx",
     "angular",
-    "angular 14",
-    "angular 15",
-    "angular 16",
-    "angular 17",
-    "angular 18",
-    "angular 19"
+    "zoneless",
+    "angular 20",
+    "angular 21",
+    "angular 22"
   ],
   "contributors": [
     {
@@ -42,7 +44,10 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/iharbeck/ngx-virtual-scroller/issues"
+    "url": "https://github.com/Kareadita/ngx-virtual-scroller/issues"
   },
-  "homepage": "https://github.com/iharbeck/ngx-virtual-scroller#readme"
+  "homepage": "https://github.com/Kareadita/ngx-virtual-scroller#readme",
+  "publishConfig": {
+    "access": "public"
+  }
 }
