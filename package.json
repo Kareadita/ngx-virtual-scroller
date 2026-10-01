@@ -5,6 +5,8 @@
     "ng": "ng",
     "build": "ng build ngx-virtual-scroller",
     "build:lib": "ng build ngx-virtual-scroller",
+    "test": "ng test ngx-virtual-scroller --watch=false",
+    "test:browser": "ng test ngx-virtual-scroller -c browser --watch=false",
     "lint": "ng lint",
     "pack": "npm run build:lib && npm pack ./dist/ngx-virtual-scroller --pack-destination dist",
     "deploy:kavita": "node scripts/deploy-kavita.mjs"
@@ -24,12 +26,17 @@
     "@angular/compiler": "^22.2.1",
     "@angular/compiler-cli": "^22.2.1",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "~1.63.0",
     "@tweenjs/tween.js": "^25.0.0",
+    "@vitest/browser-playwright": "~5.0.2",
     "angular-eslint": "^22.5.0",
     "eslint": "^10.11.0",
+    "jsdom": "^30.1.1",
     "ng-packagr": "^22.2.4",
+    "playwright": "~1.63.0",
     "prettier": "^3.9.9",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.71.0"
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.3"
   }
 }

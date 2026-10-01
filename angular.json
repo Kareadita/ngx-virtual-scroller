@@ -24,6 +24,30 @@
           },
           "defaultConfiguration": "production"
         },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/ngx-virtual-scroller/tsconfig.spec.json",
+            "exclude": [
+              "**/*.browser.spec.ts"
+            ],
+            "include": [
+              "**/*.spec.ts"
+            ]
+          },
+          "configurations": {
+            "browser": {
+              "browsers": [
+                "chromium"
+              ],
+              "headless": true,
+              "include": [
+                "**/*.browser.spec.ts"
+              ],
+              "exclude": []
+            }
+          }
+        },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {

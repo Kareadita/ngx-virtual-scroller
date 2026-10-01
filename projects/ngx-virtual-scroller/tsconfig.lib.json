@@ -13,7 +13,7 @@
     "noImplicitThis": false
   },
   "exclude": [
-    "src/test.ts",
+    "src/testing/**",
     "**/*.spec.ts"
   ],
   "angularCompilerOptions": {
