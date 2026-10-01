@@ -9,7 +9,8 @@
     "test:browser": "ng test ngx-virtual-scroller -c browser --watch=false",
     "lint": "ng lint",
     "pack": "npm run build:lib && npm pack ./dist/ngx-virtual-scroller --pack-destination dist",
-    "deploy:kavita": "node scripts/deploy-kavita.mjs"
+    "deploy:kavita": "node scripts/deploy-kavita.mjs",
+    "verify": "npm run test:browser && npm run build:lib"
   },
   "private": true,
   "packageManager": "npm@11.6.2",
