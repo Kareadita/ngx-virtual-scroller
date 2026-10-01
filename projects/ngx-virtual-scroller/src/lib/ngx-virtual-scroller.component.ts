@@ -1,10 +1,12 @@
 import {
+    ApplicationRef,
     ChangeDetectorRef,
     Component,
     ContentChild,
     ElementRef,
     EventEmitter,
     Inject,
+    inject,
     Input,
     NgModule,
     NgZone,
@@ -598,6 +600,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
     protected isAngularUniversalSSR: boolean;
 
+    protected readonly appRef = inject(ApplicationRef);
+
     constructor(
         protected readonly element: ElementRef,
         protected readonly renderer: Renderer2,
@@ -842,6 +846,15 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
                         if (startChanged || endChanged) {
                             this.changeDetectorRef.markForCheck();
                             this.vsChange.emit(changeEventArg);
+                        } else if (!this.executeRefreshOutsideAngularZone) {
+                            // viewPortInfo (scroll positions) still changed. Zoneless apps get no implicit CD from zone.run
+                            this.changeDetectorRef.markForCheck();
+                        }
+
+                        // Zoneless: markForCheck() only schedules CD, which runs after this frame paints, but the padding
+                        // above was already written to the DOM. Render now so the new items paint in the same frame.
+                        if ((startChanged || endChanged) && !this.executeRefreshOutsideAngularZone && !NgZone.isInAngularZone()) {
+                            this.appRef.tick();
                         }
 
                         if (maxRunTimes > 0) {

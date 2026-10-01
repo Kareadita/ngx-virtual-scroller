@@ -1,3 +1,11 @@
+# v20.0.1
+
+Final 20.x release. Published as `@kareadita/ngx-virtual-scroller` (maintained fork of `@iharbeck/ngx-virtual-scroller` for Kavita).
+
+* Fix rows jumping while scrolling in zoneless apps. The padding was painted one frame before the matching items, because `markForCheck()` only schedules change detection when zoneless. The scroller now renders synchronously when it detects it is not running in an Angular zone.
+* Mark the view for check whenever the viewport changes, so templates reading `viewPortInfo` (e.g. `maxScrollPosition`) stay current when zoneless.
+* Declare `@angular/core` and `@angular/common` `>=20.0.0 <23.0.0` as peer dependencies.
+
 # v14.0.2
 
 * Angular 14 Support
