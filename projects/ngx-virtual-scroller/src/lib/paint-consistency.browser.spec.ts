@@ -74,6 +74,7 @@ interface Scenario {
   unequal?: boolean;
   striped?: boolean;
   expectedOffset: (index: number) => number;
+  itemSize: (index: number) => number;
 }
 
 const unequalOffsets: number[] = [0];
@@ -82,13 +83,13 @@ for (let i = 1; i <= 2000; ++i) {
 }
 
 const scenarios: Scenario[] = [
-  { name: 'multi-column grid (#container)', layout: 'grid', expectedOffset: (i) => Math.floor(i / COLUMNS) * ROW_HEIGHT },
-  { name: 'vertical list (translate)', layout: 'list', expectedOffset: (i) => i * LIST_HEIGHT },
-  { name: 'vertical list (margin)', layout: 'list', useMargin: true, expectedOffset: (i) => i * LIST_HEIGHT },
-  { name: 'vertical list (striped table)', layout: 'list', striped: true, expectedOffset: (i) => i * LIST_HEIGHT },
-  { name: 'vertical list (unequal sizes)', layout: 'list', unequal: true, expectedOffset: (i) => unequalOffsets[i] },
-  { name: 'horizontal list', layout: 'horizontal', expectedOffset: (i) => i * ITEM_WIDTH },
-  { name: 'parentScroll = window', layout: 'window', expectedOffset: (i) => i * LIST_HEIGHT },
+  { name: 'multi-column grid (#container)', layout: 'grid', expectedOffset: (i) => Math.floor(i / COLUMNS) * ROW_HEIGHT, itemSize: () => ROW_HEIGHT },
+  { name: 'vertical list (translate)', layout: 'list', expectedOffset: (i) => i * LIST_HEIGHT, itemSize: () => LIST_HEIGHT },
+  { name: 'vertical list (margin)', layout: 'list', useMargin: true, expectedOffset: (i) => i * LIST_HEIGHT, itemSize: () => LIST_HEIGHT },
+  { name: 'vertical list (striped table)', layout: 'list', striped: true, expectedOffset: (i) => i * LIST_HEIGHT, itemSize: () => LIST_HEIGHT },
+  { name: 'vertical list (unequal sizes)', layout: 'list', unequal: true, expectedOffset: (i) => unequalOffsets[i], itemSize: unequalHeight },
+  { name: 'horizontal list', layout: 'horizontal', expectedOffset: (i) => i * ITEM_WIDTH, itemSize: () => ITEM_WIDTH },
+  { name: 'parentScroll = window', layout: 'window', expectedOffset: (i) => i * LIST_HEIGHT, itemSize: () => LIST_HEIGHT },
 ];
 
 describe('paint consistency (zoneless)', () => {
@@ -127,6 +128,7 @@ describe('paint consistency (zoneless)', () => {
         origin: scroller.querySelector('.total-padding')!,
         items: () => scroller.querySelectorAll<HTMLElement>('[data-index]'),
         expectedOffset: scenario.expectedOffset,
+        itemSize: scenario.itemSize,
         horizontal,
       };
 
@@ -137,6 +139,8 @@ describe('paint consistency (zoneless)', () => {
       expect(down.maxIndexSeen, 'the scroll moved through the list').toBeGreaterThan(40);
       expect(down.mismatches.slice(0, 5), 'scrolling down').toEqual([]);
       expect(up.mismatches.slice(0, 5), 'scrolling up').toEqual([]);
+      expect(down.gaps.slice(0, 5), 'visible range covered scrolling down').toEqual([]);
+      expect(up.gaps.slice(0, 5), 'visible range covered scrolling up').toEqual([]);
     });
   }
 });

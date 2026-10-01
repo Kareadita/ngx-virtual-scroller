@@ -16,6 +16,9 @@ export interface PaintProbeOptions {
   items: () => Iterable<HTMLElement>;
   /** True offset of the item at `index` from the content origin, in px */
   expectedOffset: (index: number) => number;
+  /** Size of the item at `index` along the scroll axis, in px. When given, every frame must also have the visible
+   * range fully covered by rendered items (no blank strip at either edge) */
+  itemSize?: (index: number) => number;
   horizontal?: boolean;
   /** Pixels scrolled per frame. Negative scrolls back */
   step?: number;
@@ -32,10 +35,20 @@ export interface PaintMismatch {
   actual: number;
 }
 
+export interface CoverageGap {
+  frame: number;
+  scrollPosition: number;
+  /** Visible range in content coordinates */
+  visible: [number, number];
+  /** Range covered by the rendered items */
+  rendered: [number, number];
+}
+
 export interface PaintProbeResult {
   frames: number;
   mismatchedFrames: number;
   mismatches: PaintMismatch[];
+  gaps: CoverageGap[];
   /** Highest item index seen, to prove the scroll actually moved through the list */
   maxIndexSeen: number;
 }
@@ -53,11 +66,32 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
     throw new Error('Document is hidden, so requestAnimationFrame is paused and the probe cannot run');
   }
 
-  const { scrollElement, origin, items, expectedOffset, horizontal = false, step = 25, frames = 120, tolerance = 1 } =
-    options;
+  const {
+    scrollElement,
+    origin,
+    items,
+    expectedOffset,
+    itemSize,
+    horizontal = false,
+    step = 25,
+    frames = 120,
+    tolerance = 1,
+  } = options;
   const scrollProp = horizontal ? 'scrollLeft' : 'scrollTop';
+  const isDocument = scrollElement === document.scrollingElement;
+
+  // The visible part of the scroll container, in viewport coordinates
+  const visibleEdges = (): [number, number] => {
+    if (isDocument) {
+      return [0, horizontal ? innerWidth : innerHeight];
+    }
+    const rect = scrollElement.getBoundingClientRect();
+    const start = (horizontal ? rect.left + scrollElement.clientLeft : rect.top + scrollElement.clientTop);
+    return [start, start + (horizontal ? scrollElement.clientWidth : scrollElement.clientHeight)];
+  };
 
   const mismatches: PaintMismatch[] = [];
+  const gaps: CoverageGap[] = [];
   const badFrames = new Set<number>();
   let frame = 0;
   let sampled = 0;
@@ -67,6 +101,8 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
     ++sampled;
     const originRect = origin.getBoundingClientRect();
     const originEdge = horizontal ? originRect.left : originRect.top;
+    let renderedStart = Infinity;
+    let renderedEnd = -Infinity;
     for (const item of items()) {
       const index = Number(item.dataset['index']);
       maxIndexSeen = Math.max(maxIndexSeen, index);
@@ -76,6 +112,24 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
       if (Math.abs(actual - expected) > tolerance) {
         badFrames.add(frame);
         mismatches.push({ frame, scrollPosition: scrollElement[scrollProp], index, expected, actual });
+      }
+      if (itemSize) {
+        renderedStart = Math.min(renderedStart, expected);
+        renderedEnd = Math.max(renderedEnd, expected + itemSize(index));
+      }
+    }
+
+    if (itemSize) {
+      // Clamp the visible range to the content, so the space past the last item doesn't count as a gap
+      const contentLength = horizontal ? originRect.width : originRect.height;
+      const [viewStart, viewEnd] = visibleEdges();
+      const visible: [number, number] = [
+        Math.max(0, viewStart - originEdge),
+        Math.min(contentLength, viewEnd - originEdge),
+      ];
+      if (renderedStart > visible[0] + tolerance || renderedEnd < visible[1] - tolerance) {
+        badFrames.add(frame);
+        gaps.push({ frame, scrollPosition: scrollElement[scrollProp], visible, rendered: [renderedStart, renderedEnd] });
       }
     }
   };
@@ -94,7 +148,9 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
         ++frame;
         probe.style.width = frame % 2 ? '2px' : '1px';
         if (frame <= frames) {
-          scrollElement[scrollProp] += step;
+          // Scroll from a task between frames, not inside this rAF callback. Then, like a user's scroll, the scroll
+          // event fires at the start of the next frame, before that frame's rAF callbacks.
+          setTimeout(() => (scrollElement[scrollProp] += step));
           requestAnimationFrame(tick);
         } else {
           resolve();
@@ -113,5 +169,5 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
     probe.remove();
   }
 
-  return { frames: sampled, mismatchedFrames: badFrames.size, mismatches, maxIndexSeen };
+  return { frames: sampled, mismatchedFrames: badFrames.size, mismatches, gaps, maxIndexSeen };
 }
