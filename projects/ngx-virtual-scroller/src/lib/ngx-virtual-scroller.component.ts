@@ -223,6 +223,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
     this._enableUnequalChildrenSizes = value;
     this.minMeasuredChildWidth = undefined;
     this.minMeasuredChildHeight = undefined;
+    this.measuredScrollPitch = undefined;
   }
 
   @Input()
@@ -453,6 +454,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
     this.minMeasuredChildWidth = undefined;
     this.minMeasuredChildHeight = undefined;
+    this.measuredScrollPitch = undefined;
 
     this.refresh_internal(false);
   }
@@ -466,6 +468,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.minMeasuredChildWidth = undefined;
       this.minMeasuredChildHeight = undefined;
+      this.measuredScrollPitch = undefined;
     }
 
     this.refresh_internal(false);
@@ -485,6 +488,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.minMeasuredChildWidth = undefined;
       this.minMeasuredChildHeight = undefined;
+      this.measuredScrollPitch = undefined;
     }
 
     this.refresh_internal(false);
@@ -1010,6 +1014,29 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
   protected minMeasuredChildWidth: number | undefined;
   protected minMeasuredChildHeight: number | undefined;
+  /**
+   * Distance along the scroll axis from one wrap group (row, or column when horizontal) to the next, measured between
+   * rendered items. Unlike an item's box plus its margins, it includes grid gaps and collapsed margins, so it is
+   * preferred whenever two wrap groups are rendered.
+   */
+  protected measuredScrollPitch: number | undefined;
+
+  protected measureScrollPitch(
+    content: HTMLElement,
+    itemsPerWrapGroup: number,
+  ): number | undefined {
+    const first = content.children[0];
+    const nextGroup = content.children[itemsPerWrapGroup];
+    if (!first || !nextGroup) {
+      return undefined;
+    }
+
+    const a = first.getBoundingClientRect();
+    const b = nextGroup.getBoundingClientRect();
+    // abs: RTL mirrors horizontal lists with scaleX(-1)
+    const pitch = Math.abs(this.horizontal ? b.left - a.left : b.top - a.top);
+    return pitch > 0 ? pitch : undefined;
+  }
 
   protected wrapGroupDimensions!: WrapGroupDimensions;
 
@@ -1123,10 +1150,24 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
           this.minMeasuredChildHeight ?? NaN,
           clientRect.height,
         );
+
+        const pitch = this.measureScrollPitch(content, itemsPerWrapGroup);
+        if (pitch !== undefined) {
+          this.measuredScrollPitch = Math.min(this.measuredScrollPitch ?? Infinity, pitch);
+        }
       }
 
-      defaultChildWidth = this.childWidth || this.minMeasuredChildWidth || viewportWidth;
-      defaultChildHeight = this.childHeight || this.minMeasuredChildHeight || viewportHeight;
+      const pitch = this.measuredScrollPitch;
+      defaultChildWidth =
+        this.childWidth ||
+        (this.horizontal ? pitch : undefined) ||
+        this.minMeasuredChildWidth ||
+        viewportWidth;
+      defaultChildHeight =
+        this.childHeight ||
+        (this.horizontal ? undefined : pitch) ||
+        this.minMeasuredChildHeight ||
+        viewportHeight;
       const itemsPerRow = Math.max(Math.ceil(viewportWidth / defaultChildWidth), 1);
       const itemsPerCol = Math.max(Math.ceil(viewportHeight / defaultChildHeight), 1);
       wrapGroupsPerPage = this.horizontal ? itemsPerRow : itemsPerCol;

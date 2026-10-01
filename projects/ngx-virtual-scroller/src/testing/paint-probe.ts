@@ -25,6 +25,8 @@ export interface PaintProbeOptions {
   frames?: number;
   /** Allowed difference in px, for subpixel rounding */
   tolerance?: number;
+  /** Allowed uncovered space at the viewport edges, in px: the space between items, such as their margins */
+  coverageTolerance?: number;
 }
 
 export interface PaintMismatch {
@@ -78,6 +80,7 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
     step = 25,
     frames = 120,
     tolerance = 1,
+    coverageTolerance = tolerance,
   } = options;
   const scrollProp = horizontal ? 'scrollLeft' : 'scrollTop';
   const isDocument = scrollElement === document.scrollingElement;
@@ -124,7 +127,8 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
         });
       }
       if (itemSize) {
-        renderedStart = Math.min(renderedStart, expected);
+        // Space before the first item (its margin) is not a gap
+        renderedStart = Math.min(renderedStart, index === 0 ? 0 : expected);
         renderedEnd = Math.max(renderedEnd, expected + itemSize(index));
       }
     }
@@ -137,7 +141,10 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
         Math.max(0, viewStart - originEdge),
         Math.min(contentLength, viewEnd - originEdge),
       ];
-      if (renderedStart > visible[0] + tolerance || renderedEnd < visible[1] - tolerance) {
+      if (
+        renderedStart > visible[0] + coverageTolerance ||
+        renderedEnd < visible[1] - coverageTolerance
+      ) {
         badFrames.add(frame);
         gaps.push({
           frame,

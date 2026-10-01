@@ -45,7 +45,7 @@ const unequalHeight = (i: number) => 30 + (i % 5) * 10;
     @switch (layout()) {
       @case ('grid') {
         <virtual-scroller #scroll class="vs" [items]="items()" [bufferAmount]="1">
-          <div #container class="grid">
+          <div #container class="grid" [style.row-gap.px]="gridGap()">
             @for (item of scroll.viewPortItems; track item) {
               <div class="item" [attr.data-index]="item" [style.height.px]="rowHeight">
                 {{ item }}
@@ -96,6 +96,8 @@ const unequalHeight = (i: number) => 30 + (i % 5) * 10;
               class="item"
               [attr.data-index]="item"
               [style.height.px]="unequal() ? unequalHeight(item) : listHeight"
+              [style.margin-top.px]="itemMargin()"
+              [style.margin-bottom.px]="itemMargin()"
             >
               {{ item }}
             </div>
@@ -111,6 +113,8 @@ class PaintHost {
   readonly useMargin = signal(false);
   readonly unequal = signal(false);
   readonly striped = signal(false);
+  readonly itemMargin = signal(0);
+  readonly gridGap = signal(0);
   readonly unequalHeight = unequalHeight;
   readonly rowHeight = ROW_HEIGHT;
   readonly listHeight = LIST_HEIGHT;
@@ -123,6 +127,10 @@ interface Scenario {
   useMargin?: boolean;
   unequal?: boolean;
   striped?: boolean;
+  itemMargin?: number;
+  gridGap?: number;
+  /** Space between items that no item covers, allowed at the viewport edges */
+  spacing?: number;
   expectedOffset: (index: number) => number;
   itemSize: (index: number) => number;
 }
@@ -132,12 +140,33 @@ for (let i = 1; i <= 2000; ++i) {
   unequalOffsets[i] = unequalOffsets[i - 1] + unequalHeight(i - 1);
 }
 
+const ITEM_MARGIN = 5;
+const GRID_GAP = 10;
+
 const scenarios: Scenario[] = [
   {
     name: 'multi-column grid (#container)',
     layout: 'grid',
     expectedOffset: (i) => Math.floor(i / COLUMNS) * ROW_HEIGHT,
     itemSize: () => ROW_HEIGHT,
+  },
+  {
+    // Row gaps are space between items that no item's box includes
+    name: 'multi-column grid with a row gap',
+    layout: 'grid',
+    gridGap: GRID_GAP,
+    spacing: GRID_GAP,
+    expectedOffset: (i) => Math.floor(i / COLUMNS) * (ROW_HEIGHT + GRID_GAP),
+    itemSize: () => ROW_HEIGHT,
+  },
+  {
+    // Adjacent vertical margins collapse, so items sit height + margin apart, not height + 2 * margin
+    name: 'vertical list (collapsing item margins)',
+    layout: 'list',
+    itemMargin: ITEM_MARGIN,
+    spacing: ITEM_MARGIN,
+    expectedOffset: (i) => ITEM_MARGIN + i * (LIST_HEIGHT + ITEM_MARGIN),
+    itemSize: () => LIST_HEIGHT,
   },
   {
     name: 'vertical list (translate)',
@@ -205,6 +234,8 @@ describe('paint consistency (zoneless)', () => {
       host.useMargin.set(!!scenario.useMargin);
       host.unequal.set(!!scenario.unequal);
       host.striped.set(!!scenario.striped);
+      host.itemMargin.set(scenario.itemMargin ?? 0);
+      host.gridGap.set(scenario.gridGap ?? 0);
       await fixture.whenStable();
       await waitFrames(10);
 
@@ -217,6 +248,7 @@ describe('paint consistency (zoneless)', () => {
         items: () => scroller.querySelectorAll<HTMLElement>('[data-index]'),
         expectedOffset: scenario.expectedOffset,
         itemSize: scenario.itemSize,
+        coverageTolerance: 1 + (scenario.spacing ?? 0),
         horizontal,
       };
 

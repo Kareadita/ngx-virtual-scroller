@@ -9,7 +9,10 @@ import { TestBed } from '@angular/core/testing';
 import { VirtualScrollerComponent } from './ngx-virtual-scroller.component';
 import { waitFrames } from '../testing/paint-probe';
 
-const ITEM_HEIGHT = 40;
+// 24px items with 8px margins: adjacent margins collapse, so items sit 32px apart
+const ITEM_HEIGHT = 24;
+const ITEM_MARGIN = 8;
+const ITEM_PITCH = ITEM_HEIGHT + ITEM_MARGIN;
 
 /**
  * Two lists sharing one scroll parent, like tabs on a page: only one is displayed at a time, but both listen to the
@@ -26,8 +29,8 @@ const ITEM_HEIGHT = 40;
       overflow-y: auto;
     }
     .item {
-      height: ${ITEM_HEIGHT - 16}px;
-      margin: 8px 0;
+      height: ${ITEM_HEIGHT}px;
+      margin: ${ITEM_MARGIN}px 0;
     }
   `,
   template: `
@@ -81,7 +84,7 @@ describe('VirtualScrollerComponent while hidden', () => {
     fixture.componentInstance.activeTab.set(1);
     await settle();
     // While hidden it had no scroll length, so showing it shrinks the page and the browser resets scrollTop; scroll back
-    expect(hidden.viewPortInfo.startIndex).toBe(Math.floor(page.scrollTop / ITEM_HEIGHT));
+    expect(hidden.viewPortInfo.startIndex).toBe(Math.floor(page.scrollTop / ITEM_PITCH));
     page.scrollTop = 3000;
     await settle();
 
@@ -92,9 +95,9 @@ describe('VirtualScrollerComponent while hidden', () => {
       (el: HTMLElement) => Number(el.dataset['index']),
     );
     expect(rendered.length).toBeLessThan(50);
-    // 3000px down at 40px per item
-    expect(rendered).toContain(3000 / ITEM_HEIGHT);
-    expect(hidden.viewPortInfo.startIndex).toBe(3000 / ITEM_HEIGHT);
+    // 3000px down at 32px per item
+    expect(rendered).toContain(Math.floor(3000 / ITEM_PITCH));
+    expect(hidden.viewPortInfo.startIndex).toBe(Math.floor(3000 / ITEM_PITCH));
     fixture.destroy();
   });
 });
