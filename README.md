@@ -13,6 +13,7 @@ This method is effective because the number of DOM elements are always constant 
 - Open source and available in GitHub
 
 ## Breaking Changes:
+- `v22.0.0` Library supports Angular 22+ and is fully zoneless.
 - `v3.0.0` Several deprecated properties removed (see changelog).
     - If items array is prepended with additional items, keep scroll on currently visible items, if possible. There is no flag to disable this, because it seems to be the best user-experience in all cases. If you disagree, please create an issue.
 - `v2.1.0` Dependency Injection syntax was changed.
@@ -22,23 +23,6 @@ This method is effective because the number of DOM elements are always constant 
 - `v0.4.12` The start and end values of the change/start/end events were including bufferAmount, which made them confusing. This has been corrected.
     - viewPortIndices.arrayStartIndex renamed to viewPortIndices.startIndex and viewPortIndices.arrayEndIndex renamed to viewPortIndices.endIndex
 - `v0.4.4` The value of IPageInfo.endIndex wasn't intuitive. This has been corrected. Both IPageInfo.startIndex and IPageInfo.endIndex are the 0-based array indexes of the items being rendered in the viewport. (Previously Change.EndIndex was the array index + 1)
-
-*Note* - API methods marked *(DEPRECATED)* will be removed in the next major version. Please attempt to stop using them in your code & create an issue if you believe they're still necessary.
-
-## New features:
-
- - RTL Support on Horizontal scrollers
- - Support for fixed `<thead>` on `<table>` elements.
- - Added API to query for current scroll px position (also passed as argument to `IPageInfo` listeners)
- - Added API to invalidate cached child item measurements (if your child item sizes change dynamically)
- - Added API to scroll to specific px position
- - If scroll container resizes, the items will auto-refresh. Can be disabled if it causes any performance issues by setting `[checkResizeInterval]="0"`
- - `useMarginInsteadOfTranslate` flag. Defaults to _false_. This can affect performance (better/worse depending on your circumstances), and also creates a workaround for the transform+position:fixed browser bug.
- - Support for horizontal scrollbars
- - Support for elements with different sizes
- - Added ability to put other elements inside of scroll (Need to wrap list itself in @ContentChild('container'))
- - Added ability to use any parent with scrollbar instead of this element (@Input() parentScroll)
- - Angular 13 Support 
 
 ## Demo
 
@@ -739,14 +723,8 @@ Contributions are very welcome! Just send a pull request. Feel free to contact m
 * **Devin Garner** (speige)
 * **Pavel Kukushkin** (kykint)
 
-### Hope this module is helpful to you. Please make sure to checkout my other [projects](https://github.com/rintoj) and [articles](https://medium.com/@rintoj). Enjoy coding!
-
-Follow me:
-  [GitHub](https://github.com/rintoj)
-| [Facebook](https://www.facebook.com/rinto.jose)
-| [Twitter](https://twitter.com/rintoj)
-| [Google+](https://plus.google.com/+RintoJoseMankudy)
-| [Youtube](https://youtube.com/+RintoJoseMankudy)
+## AI Usage
+This project was forked and is now maintained by Kavita dev team with AI. This fork is built exclusively for Kavita, but should be safe to use for other projects. 
 
 ## Versions
 [Check CHANGELOG](https://github.com/rintoj/ngx-virtual-scroller/blob/master/CHANGELOG.md)

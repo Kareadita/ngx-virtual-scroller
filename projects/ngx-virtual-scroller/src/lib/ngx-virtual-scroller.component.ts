@@ -1,12 +1,10 @@
 import {
-  ApplicationRef,
   ChangeDetectorRef,
   Component,
   ContentChild,
   ElementRef,
   EventEmitter,
   Inject,
-  inject,
   Input,
   NgModule,
   NgZone,
@@ -17,13 +15,11 @@ import {
   Output,
   Renderer2,
   ViewChild,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  signal
 } from '@angular/core';
-
 import {PLATFORM_ID} from '@angular/core';
 import {isPlatformServer} from '@angular/common';
-
-
 
 import * as tween from '@tweenjs/tween.js'
 
@@ -93,14 +89,18 @@ export interface IViewport extends IPageInfo {
     scrollbarLength: number;
 }
 
-
 @Component({
     selector: 'virtual-scroller,[virtualScroller]',
     exportAs: 'virtualScroller',
     template: `
         <ng-content select="[tab-header]"></ng-content>
-        <div class="total-padding" #invisiblePadding></div>
-        <div class="scrollable-content" #content>
+        <div class="total-padding" #invisiblePadding
+            [style.height.px]="horizontal ? null : renderedScrollLength()"
+            [style.width.px]="horizontal ? renderedScrollLength() : null"></div>
+        <div class="scrollable-content" #content
+            [style.transform]="contentTransform()"
+            [style.margin-top.px]="useMarginInsteadOfTranslate && !horizontal ? renderedPadding() : null"
+            [style.margin-left.px]="useMarginInsteadOfTranslate && horizontal ? renderedPadding() : null">
             <ng-content></ng-content>
         </div>
         <ng-content select="[tab-footer]"></ng-content>
@@ -295,15 +295,17 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
     protected updateOnScrollFunction(): void {
         if (this.scrollDebounceTime) {
             this.onScroll = <any>this.debounce(() => {
-                this.refresh_internal(false);
+                this.refresh_internal(false, undefined, 2, true);
             }, this.scrollDebounceTime);
         } else if (this.scrollThrottlingTime) {
             this.onScroll = <any>this.throttleTrailing(() => {
-                this.refresh_internal(false);
+                this.refresh_internal(false, undefined, 2, true);
             }, this.scrollThrottlingTime);
         } else {
+            // Measure right away instead of in the next animation frame. Scroll events fire before the frame's rAF
+            // callbacks, so the render this schedules still lands before the frame paints.
             this.onScroll = () => {
-                this.refresh_internal(false);
+                this.refresh_internal(false, undefined, 2, true);
             };
         }
     }
@@ -602,7 +604,18 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
     protected isAngularUniversalSSR: boolean;
 
-    protected readonly appRef = inject(ApplicationRef);
+    // Padding and scroll length are template bindings, so they reach the DOM in the same render as the items they
+    // belong to. Writing them directly while the items wait for change detection paints the rows shifted.
+    protected readonly renderedScrollLength = signal<number | null>(null);
+    protected readonly renderedPadding = signal<number | null>(null);
+
+    protected contentTransform(): string | null {
+        const padding = this.renderedPadding();
+        if (this.useMarginInsteadOfTranslate || padding === null) {
+            return null;
+        }
+        return `${this.horizontal ? 'translateX' : 'translateY'}(${padding}px)`;
+    }
 
     constructor(
         protected readonly element: ElementRef,
@@ -752,7 +765,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
     protected disposeScrollHandler: () => void | undefined;
     protected disposeResizeHandler: () => void | undefined;
 
-    protected refresh_internal(itemsArrayModified: boolean, refreshCompletedCallback: () => void = undefined, maxRunTimes: number = 2): void {
+    protected refresh_internal(itemsArrayModified: boolean, refreshCompletedCallback: () => void = undefined, maxRunTimes: number = 2, immediate: boolean = false): void {
         //note: maxRunTimes is to force it to keep recalculating if the previous iteration caused a re-render (different sliced items in viewport or scrollPosition changed).
         //The default of 2x max will probably be accurate enough without causing too large a performance bottleneck
         //The code would typically quit out on the 2nd iteration anyways. The main time it'd think more than 2 runs would be necessary would be for vastly different sized child items or if this is the 1st time the items array was initialized.
@@ -792,7 +805,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         this.zone.runOutsideAngular(() => {
-            requestAnimationFrame(() => {
+            const refresh = () => {
 
                 if (itemsArrayModified) {
                     this.resetWrapGroupDimensions();
@@ -807,18 +820,8 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
 
                 this.previousViewPort = viewport;
 
-                if (scrollbarLengthChanged) {
-                    this.renderer.setStyle(this.invisiblePaddingElementRef.nativeElement, this._invisiblePaddingProperty, `${viewport.scrollLength}px`);
-                }
-
-                if (paddingChanged) {
-                    if (this.useMarginInsteadOfTranslate) {
-                        this.renderer.setStyle(this.contentElementRef.nativeElement, this._marginDir, `${viewport.padding}px`);
-                    } else {
-                        this.renderer.setStyle(this.contentElementRef.nativeElement, 'transform', `${this._translateDir}(${viewport.padding}px)`);
-                        this.renderer.setStyle(this.contentElementRef.nativeElement, 'webkitTransform', `${this._translateDir}(${viewport.padding}px)`);
-                    }
-                }
+                this.renderedScrollLength.set(viewport.scrollLength);
+                this.renderedPadding.set(viewport.padding);
 
                 const changeEventArg: IPageInfo = (startChanged || endChanged) ? {
                     startIndex: viewport.startIndex,
@@ -829,7 +832,6 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
                     endIndexWithBuffer: viewport.endIndexWithBuffer,
                     maxScrollPosition: viewport.maxScrollPosition
                 } : undefined;
-
 
                 if (startChanged || endChanged || scrollPositionChanged) {
                     const handleChanged = () => {
@@ -853,12 +855,6 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
                             this.changeDetectorRef.markForCheck();
                         }
 
-                        // Zoneless: markForCheck() only schedules CD, which runs after this frame paints, but the padding
-                        // above was already written to the DOM. Render now so the new items paint in the same frame.
-                        if ((startChanged || endChanged) && !this.executeRefreshOutsideAngularZone && !NgZone.isInAngularZone()) {
-                            this.appRef.tick();
-                        }
-
                         if (maxRunTimes > 0) {
                             this.refresh_internal(false, refreshCompletedCallback, maxRunTimes - 1);
                             return;
@@ -868,7 +864,6 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
                             refreshCompletedCallback();
                         }
                     };
-
 
                     if (this.executeRefreshOutsideAngularZone) {
                         handleChanged();
@@ -885,7 +880,13 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
                         refreshCompletedCallback();
                     }
                 }
-            });
+            };
+
+            if (immediate) {
+                refresh();
+            } else {
+                requestAnimationFrame(refresh);
+            }
         });
     }
 
@@ -1359,5 +1360,4 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
         };
     }
 }
-
 
