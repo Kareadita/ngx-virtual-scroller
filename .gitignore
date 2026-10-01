@@ -54,3 +54,7 @@ Thumbs.db
 
 # JetBrains module files
 *.iml
+
+# Local-only
+/scripts/deploy-kavita.mjs
+/CLAUDE.md
