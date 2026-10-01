@@ -4,11 +4,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/spec",
-    "types": ["vitest/globals"],
-    // Match tsconfig.lib.json until the component's types are tightened
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "noImplicitThis": false
+    "types": ["vitest/globals"]
   },
   "include": ["**/*.d.ts", "**/*.spec.ts"]
 }

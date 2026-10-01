@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { VirtualScrollerComponent } from './ngx-virtual-scroller.component';
 import { VirtualScrollerModule } from './ngx-virtual-scroller.module';
@@ -12,8 +18,14 @@ const range = (from: number, count: number) => Array.from({ length: count }, (_,
   imports: [VirtualScrollerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    virtual-scroller { display: block; width: 300px; }
-    .item { box-sizing: border-box; height: ${ITEM_HEIGHT}px; }
+    virtual-scroller {
+      display: block;
+      width: 300px;
+    }
+    .item {
+      box-sizing: border-box;
+      height: ${ITEM_HEIGHT}px;
+    }
   `,
   template: `
     <span class="max-scroll">{{ scroll.viewPortInfo.maxScrollPosition }}</span>
@@ -42,7 +54,9 @@ describe('VirtualScrollerComponent behavior (zoneless)', () => {
   };
   const scrollerElement = () => element.querySelector<HTMLElement>('virtual-scroller')!;
   const renderedIndexes = () =>
-    Array.from(element.querySelectorAll<HTMLElement>('[data-index]'), (el) => Number(el.dataset['index']));
+    Array.from(element.querySelectorAll<HTMLElement>('[data-index]'), (el) =>
+      Number(el.dataset['index']),
+    );
   // The first item whose bottom edge is below the top of the viewport
   const firstVisibleIndex = () => {
     const top = scrollerElement().getBoundingClientRect().top;
@@ -78,7 +92,9 @@ describe('VirtualScrollerComponent behavior (zoneless)', () => {
     host.scroller().scrollToIndex(999, true, 0, 0);
     await settle();
     expect(renderedIndexes()).toContain(999);
-    expect(scrollerElement().scrollTop).toBe(scrollerElement().scrollHeight - scrollerElement().clientHeight);
+    expect(scrollerElement().scrollTop).toBe(
+      scrollerElement().scrollHeight - scrollerElement().clientHeight,
+    );
   });
 
   it('animates scrollToIndex and calls the completion callback once it arrives', async () => {
@@ -124,9 +140,6 @@ describe('VirtualScrollerComponent behavior (zoneless)', () => {
 
     host.height.set(600);
     await settle();
-    // The resize poll runs every checkResizeInterval (1000ms by default)
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    await settle();
 
     expect(renderedIndexes().length).toBeGreaterThan(before);
   });
@@ -139,8 +152,6 @@ describe('VirtualScrollerComponent behavior (zoneless)', () => {
 
     // 300px -> 310px keeps ceil(height / 40) = 8 items per page, so start and end stay put
     host.height.set(310);
-    await settle();
-    await new Promise((resolve) => setTimeout(resolve, 1200));
     await settle();
 
     expect(host.scroller().viewPortInfo.maxScrollPosition).toBe(initial - 10);

@@ -4,8 +4,7 @@
   "description": "Virtual scroll component for zoneless Angular. Maintained fork of iharbeck/ngx-virtual-scroller",
   "peerDependencies": {
     "@angular/common": "^22.0.0",
-    "@angular/core": "^22.0.0",
-    "@tweenjs/tween.js": "^25.0.0"
+    "@angular/core": "^22.0.0"
   },
   "repository": {
     "type": "git",

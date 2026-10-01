@@ -63,7 +63,9 @@ export async function waitFrames(count: number): Promise<void> {
 
 export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintProbeResult> {
   if (document.visibilityState !== 'visible') {
-    throw new Error('Document is hidden, so requestAnimationFrame is paused and the probe cannot run');
+    throw new Error(
+      'Document is hidden, so requestAnimationFrame is paused and the probe cannot run',
+    );
   }
 
   const {
@@ -86,7 +88,9 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
       return [0, horizontal ? innerWidth : innerHeight];
     }
     const rect = scrollElement.getBoundingClientRect();
-    const start = (horizontal ? rect.left + scrollElement.clientLeft : rect.top + scrollElement.clientTop);
+    const start = horizontal
+      ? rect.left + scrollElement.clientLeft
+      : rect.top + scrollElement.clientTop;
     return [start, start + (horizontal ? scrollElement.clientWidth : scrollElement.clientHeight)];
   };
 
@@ -111,7 +115,13 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
       const expected = expectedOffset(index);
       if (Math.abs(actual - expected) > tolerance) {
         badFrames.add(frame);
-        mismatches.push({ frame, scrollPosition: scrollElement[scrollProp], index, expected, actual });
+        mismatches.push({
+          frame,
+          scrollPosition: scrollElement[scrollProp],
+          index,
+          expected,
+          actual,
+        });
       }
       if (itemSize) {
         renderedStart = Math.min(renderedStart, expected);
@@ -129,7 +139,12 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
       ];
       if (renderedStart > visible[0] + tolerance || renderedEnd < visible[1] - tolerance) {
         badFrames.add(frame);
-        gaps.push({ frame, scrollPosition: scrollElement[scrollProp], visible, rendered: [renderedStart, renderedEnd] });
+        gaps.push({
+          frame,
+          scrollPosition: scrollElement[scrollProp],
+          visible,
+          rendered: [renderedStart, renderedEnd],
+        });
       }
     }
   };
@@ -137,7 +152,8 @@ export async function scrollAndProbe(options: PaintProbeOptions): Promise<PaintP
   // ResizeObserver callbacks run after requestAnimationFrame callbacks and layout, right before paint.
   // Resizing a hidden probe element every frame gives one callback per frame.
   const probe = document.createElement('div');
-  probe.style.cssText = 'position:fixed;left:0;top:0;height:1px;width:1px;opacity:0;pointer-events:none';
+  probe.style.cssText =
+    'position:fixed;left:0;top:0;height:1px;width:1px;opacity:0;pointer-events:none';
   document.body.appendChild(probe);
   const observer = new ResizeObserver(sample);
   observer.observe(probe);

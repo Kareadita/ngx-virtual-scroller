@@ -7,10 +7,7 @@
     "declarationMap": true,
     "inlineSources": true,
     "types": [],
-    "strictNullChecks": false,
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false,
-    "noImplicitThis": false
+    "allowSyntheticDefaultImports": true
   },
   "exclude": [
     "src/testing/**",

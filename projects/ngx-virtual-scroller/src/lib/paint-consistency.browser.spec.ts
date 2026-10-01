@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  provideZonelessChangeDetection,
+  signal,
+} from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { VirtualScrollerModule } from './ngx-virtual-scroller.module';
 import { scrollAndProbe, waitFrames } from '../testing/paint-probe';
@@ -16,11 +21,25 @@ const unequalHeight = (i: number) => 30 + (i % 5) * 10;
   imports: [VirtualScrollerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    .vs { display: block; width: 400px; height: 300px; }
-    .vs.horizontal { height: 120px; }
-    .vs.window { height: auto; }
-    .grid { display: grid; grid-template-columns: repeat(${COLUMNS}, 100px); }
-    .item { box-sizing: border-box; overflow: hidden; }
+    .vs {
+      display: block;
+      width: 400px;
+      height: 300px;
+    }
+    .vs.horizontal {
+      height: 120px;
+    }
+    .vs.window {
+      height: auto;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(${COLUMNS}, 100px);
+    }
+    .item {
+      box-sizing: border-box;
+      overflow: hidden;
+    }
   `,
   template: `
     @switch (layout()) {
@@ -28,7 +47,9 @@ const unequalHeight = (i: number) => 30 + (i % 5) * 10;
         <virtual-scroller #scroll class="vs" [items]="items()" [bufferAmount]="1">
           <div #container class="grid">
             @for (item of scroll.viewPortItems; track item) {
-              <div class="item" [attr.data-index]="item" [style.height.px]="${ROW_HEIGHT}">{{ item }}</div>
+              <div class="item" [attr.data-index]="item" [style.height.px]="rowHeight">
+                {{ item }}
+              </div>
             }
           </div>
         </virtual-scroller>
@@ -36,22 +57,48 @@ const unequalHeight = (i: number) => 30 + (i % 5) * 10;
       @case ('horizontal') {
         <virtual-scroller #scroll class="vs" [items]="items()" [horizontal]="true">
           @for (item of scroll.viewPortItems; track item) {
-            <div class="item" [attr.data-index]="item" [style.width.px]="${ITEM_WIDTH}" [style.height.px]="100">{{ item }}</div>
+            <div
+              class="item"
+              [attr.data-index]="item"
+              [style.width.px]="itemWidth"
+              [style.height.px]="100"
+            >
+              {{ item }}
+            </div>
           }
         </virtual-scroller>
       }
       @case ('window') {
-        <virtual-scroller #scroll class="vs window" [items]="items()" [parentScroll]="scroll.window">
+        <virtual-scroller
+          #scroll
+          class="vs window"
+          [items]="items()"
+          [parentScroll]="scroll.window"
+        >
           @for (item of scroll.viewPortItems; track item) {
-            <div class="item" [attr.data-index]="item" [style.height.px]="${LIST_HEIGHT}">{{ item }}</div>
+            <div class="item" [attr.data-index]="item" [style.height.px]="listHeight">
+              {{ item }}
+            </div>
           }
         </virtual-scroller>
       }
       @default {
-        <virtual-scroller #scroll class="vs" [items]="items()"
-          [useMarginInsteadOfTranslate]="useMargin()" [enableUnequalChildrenSizes]="unequal()" [stripedTable]="striped()">
+        <virtual-scroller
+          #scroll
+          class="vs"
+          [items]="items()"
+          [useMarginInsteadOfTranslate]="useMargin()"
+          [enableUnequalChildrenSizes]="unequal()"
+          [stripedTable]="striped()"
+        >
           @for (item of scroll.viewPortItems; track item) {
-            <div class="item" [attr.data-index]="item" [style.height.px]="unequal() ? unequalHeight(item) : ${LIST_HEIGHT}">{{ item }}</div>
+            <div
+              class="item"
+              [attr.data-index]="item"
+              [style.height.px]="unequal() ? unequalHeight(item) : listHeight"
+            >
+              {{ item }}
+            </div>
           }
         </virtual-scroller>
       }
@@ -65,6 +112,9 @@ class PaintHost {
   readonly unequal = signal(false);
   readonly striped = signal(false);
   readonly unequalHeight = unequalHeight;
+  readonly rowHeight = ROW_HEIGHT;
+  readonly listHeight = LIST_HEIGHT;
+  readonly itemWidth = ITEM_WIDTH;
 }
 
 interface Scenario {
@@ -83,13 +133,51 @@ for (let i = 1; i <= 2000; ++i) {
 }
 
 const scenarios: Scenario[] = [
-  { name: 'multi-column grid (#container)', layout: 'grid', expectedOffset: (i) => Math.floor(i / COLUMNS) * ROW_HEIGHT, itemSize: () => ROW_HEIGHT },
-  { name: 'vertical list (translate)', layout: 'list', expectedOffset: (i) => i * LIST_HEIGHT, itemSize: () => LIST_HEIGHT },
-  { name: 'vertical list (margin)', layout: 'list', useMargin: true, expectedOffset: (i) => i * LIST_HEIGHT, itemSize: () => LIST_HEIGHT },
-  { name: 'vertical list (striped table)', layout: 'list', striped: true, expectedOffset: (i) => i * LIST_HEIGHT, itemSize: () => LIST_HEIGHT },
-  { name: 'vertical list (unequal sizes)', layout: 'list', unequal: true, expectedOffset: (i) => unequalOffsets[i], itemSize: unequalHeight },
-  { name: 'horizontal list', layout: 'horizontal', expectedOffset: (i) => i * ITEM_WIDTH, itemSize: () => ITEM_WIDTH },
-  { name: 'parentScroll = window', layout: 'window', expectedOffset: (i) => i * LIST_HEIGHT, itemSize: () => LIST_HEIGHT },
+  {
+    name: 'multi-column grid (#container)',
+    layout: 'grid',
+    expectedOffset: (i) => Math.floor(i / COLUMNS) * ROW_HEIGHT,
+    itemSize: () => ROW_HEIGHT,
+  },
+  {
+    name: 'vertical list (translate)',
+    layout: 'list',
+    expectedOffset: (i) => i * LIST_HEIGHT,
+    itemSize: () => LIST_HEIGHT,
+  },
+  {
+    name: 'vertical list (margin)',
+    layout: 'list',
+    useMargin: true,
+    expectedOffset: (i) => i * LIST_HEIGHT,
+    itemSize: () => LIST_HEIGHT,
+  },
+  {
+    name: 'vertical list (striped table)',
+    layout: 'list',
+    striped: true,
+    expectedOffset: (i) => i * LIST_HEIGHT,
+    itemSize: () => LIST_HEIGHT,
+  },
+  {
+    name: 'vertical list (unequal sizes)',
+    layout: 'list',
+    unequal: true,
+    expectedOffset: (i) => unequalOffsets[i],
+    itemSize: unequalHeight,
+  },
+  {
+    name: 'horizontal list',
+    layout: 'horizontal',
+    expectedOffset: (i) => i * ITEM_WIDTH,
+    itemSize: () => ITEM_WIDTH,
+  },
+  {
+    name: 'parentScroll = window',
+    layout: 'window',
+    expectedOffset: (i) => i * LIST_HEIGHT,
+    itemSize: () => LIST_HEIGHT,
+  },
 ];
 
 describe('paint consistency (zoneless)', () => {

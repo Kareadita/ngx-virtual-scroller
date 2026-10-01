@@ -10,7 +10,7 @@
     "lint": "ng lint",
     "pack": "npm run build:lib && npm pack ./dist/ngx-virtual-scroller --pack-destination dist",
     "deploy:kavita": "node scripts/deploy-kavita.mjs",
-    "verify": "npm run test:browser && npm run build:lib"
+    "verify": "npm run lint && npm test && npm run test:browser && npm run build:lib"
   },
   "private": true,
   "packageManager": "npm@11.6.2",
@@ -28,7 +28,6 @@
     "@angular/compiler-cli": "^22.2.1",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "~1.63.0",
-    "@tweenjs/tween.js": "^25.0.0",
     "@vitest/browser-playwright": "~5.0.2",
     "angular-eslint": "^22.5.0",
     "eslint": "^10.11.0",
