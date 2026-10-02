@@ -35,3 +35,22 @@ jobs:
             .vitest
           retention-days: 7
           include-hidden-files: true
+
+  # Installs the packed library into a fresh Angular app, as a consumer would. See scripts/consumer-check.mjs
+  consumer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run consumer
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: consumer-report
+          path: playwright-report
+          retention-days: 7

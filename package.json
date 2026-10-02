@@ -13,7 +13,8 @@
     "lint": "ng lint",
     "pack": "npm run build:lib && npm pack ./dist/ngx-virtual-scroller --pack-destination dist",
     "deploy:kavita": "node scripts/deploy-kavita.mjs",
-    "verify": "npm run lint && npm test && npm run test:browser && npm run build:lib && npm run build:demo && npm run e2e"
+    "verify": "npm run lint && npm test && npm run test:browser && npm run build:lib && npm run build:demo && npm run e2e",
+    "consumer": "node scripts/consumer-check.mjs"
   },
   "private": true,
   "packageManager": "npm@11.6.2",
