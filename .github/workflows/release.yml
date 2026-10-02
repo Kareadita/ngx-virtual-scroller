@@ -19,7 +19,7 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
       # Trusted publishing (OIDC) needs npm 11.5.1+, newer than some Node 24 releases bundle
-      - run: npm install -g npm@^11.5.1
+      - run: npm install -g npm@^11.5.1 && npm --version
       - run: npm ci
       - name: Check tag matches package version
         run: |
@@ -40,3 +40,8 @@ jobs:
           else
             npm publish
           fi
+      # When npmjs.com rejects the OIDC token exchange, npm silently falls back to setup-node's placeholder token and
+      # the registry answers 404 Not Found. The reason is only in npm's debug log
+      - name: Show why trusted publishing failed
+        if: failure()
+        run: grep -ih oidc ~/.npm/_logs/*-debug-0.log || echo "No OIDC lines in the npm debug log"

@@ -90,9 +90,26 @@ merging alone.
   git tag -d vX.Y.Z
   ```
 
-- **The publish step fails with an authentication error:** check the trusted publisher on npmjs.com (package →
-  Settings → Trusted Publisher): organization `Kareadita`, repository `ngx-virtual-scroller`, workflow `release.yml`,
-  no environment. Then re-run the failed job; the tag doesn't need to change.
+- **The publish step fails with `404 Not Found` (or another authentication error):** npmjs.com didn't accept the
+  workflow as a trusted publisher, and npm fell back to a placeholder token. The "Show why trusted publishing failed"
+  step prints npm's reason. Check the trusted publisher on npmjs.com (package → Settings → Trusted Publisher):
+  - publisher GitHub Actions, organization `Kareadita`, repository `ngx-virtual-scroller`;
+  - workflow filename `release.yml`, the file name only, not `.github/workflows/release.yml`;
+  - environment empty.
+
+  Then re-run the failed job from the Actions tab. Nothing was published, so the tag doesn't need to change.
+
+- **The release workflow itself needed a fix:** a re-run uses the workflow file as it was at the tagged commit. After
+  merging the fix, and only if nothing was published, move the tag to the new commit:
+
+  ```sh
+  git push --delete origin vX.Y.Z
+  git tag -d vX.Y.Z
+  git fetch origin
+  git tag vX.Y.Z origin/master
+  git push origin vX.Y.Z
+  ```
+
 - **A broken version was published:** npm never accepts the same version twice. Fix it and release the next patch.
   `npm deprecate` and `npm dist-tag` (for example to point `latest` back at an older version) are not covered by
   trusted publishing, so run them locally after `npm login`.
