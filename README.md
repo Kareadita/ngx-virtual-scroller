@@ -5,7 +5,7 @@ horizontal, single or multi-column, fixed or variable sizes.
 
 [![npm](https://img.shields.io/npm/v/@kareadita/ngx-virtual-scroller)](https://www.npmjs.com/package/@kareadita/ngx-virtual-scroller)
 
-**[Demo and examples](https://kareadita.github.io/ngx-virtual-scroller/)** ·
+**[Demo and examples](https://www.kavitareader.com/ngx-virtual-scroller/)** ·
 [Changelog](https://github.com/Kareadita/ngx-virtual-scroller/blob/master/CHANGELOG.md)
 
 - Built for zoneless Angular: `viewPortItems` and `viewPortInfo` are signal-backed, so `OnPush` templates update on

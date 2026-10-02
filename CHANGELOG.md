@@ -2,7 +2,7 @@
 
 Supports Angular 22+ in zoneless apps only (`@angular/core` and `@angular/common` `^22.0.0`). From here on, each Angular major gets a matching library major. Stay on 20.0.1 if you need Angular 20–21 or zone.js. 20.0.1 is the last 20.x release.
 
-Demo and docs: https://kareadita.github.io/ngx-virtual-scroller/
+Demo and docs: https://www.kavitareader.com/ngx-virtual-scroller/
 
 ## Breaking changes
 

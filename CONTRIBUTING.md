@@ -81,21 +81,47 @@ merging alone.
    library and publishes it. Then check `npm view @kareadita/ngx-virtual-scroller dist-tags`.
 6. **Afterwards:** add a GitHub release for the tag with the changelog section, and update Kavita to the new version.
 
-### When something goes wrong
+### If a release fails
 
-- **"Tag does not match package version":** nothing was published. Delete the tag, fix the version, and tag again:
+First check whether anything reached npm: `npm view @kareadita/ngx-virtual-scroller versions`.
+
+**Nothing was published** (the workflow failed at any step, including `npm publish`). The version can be reused.
+
+- If the fix is outside the repo, such as the npm trusted publisher settings, fix it and use "Re-run failed jobs" on
+  the Release run in the Actions tab.
+- If the fix needs a code or workflow change, merge it, then move the tag to the new commit. A re-run would use the
+  old commit.
 
   ```sh
   git push --delete origin vX.Y.Z
   git tag -d vX.Y.Z
+  git fetch origin
+  git tag vX.Y.Z origin/master
+  git push origin vX.Y.Z
   ```
 
-- **The publish step fails with an authentication error:** check the trusted publisher on npmjs.com (package →
-  Settings → Trusted Publisher): organization `Kareadita`, repository `ngx-virtual-scroller`, workflow `release.yml`,
-  no environment. Then re-run the failed job; the tag doesn't need to change.
-- **A broken version was published:** npm never accepts the same version twice. Fix it and release the next patch.
-  `npm deprecate` and `npm dist-tag` (for example to point `latest` back at an older version) are not covered by
-  trusted publishing, so run them locally after `npm login`.
+### Reverting a published release
+
+npm never accepts the same version number twice, even after an unpublish, so a published version can't be replaced.
+Leave its tag in place too: it records what was released.
+
+1. **Move users back** to the previous good version, so `npm install` stops picking up the bad one:
+
+   ```sh
+   npm dist-tag add @kareadita/ngx-virtual-scroller@<previous version> latest
+   ```
+
+2. **Warn anyone who installs it** by exact version:
+
+   ```sh
+   npm deprecate @kareadita/ngx-virtual-scroller@X.Y.Z "Broken, use X.Y.Z+1 instead"
+   ```
+
+3. **Release the fix** as the next patch, which becomes `latest` again.
+
+These commands run on your machine after `npm login`; the release workflow only publishes. Avoid `npm unpublish`:
+npm restricts it after 72 hours, it breaks anyone who already depends on that version, and the version number stays
+unusable afterwards.
 
 ### A new Angular major
 
@@ -104,7 +130,9 @@ merging alone.
 3. Release as above. `npm run consumer` generates its test app with the Angular major from the peers, so it checks
    the new major automatically.
 
-### One-time setup (already done)
+### One-time setup
 
-- npm trusted publisher for `release.yml`, as above.
-- GitHub Pages source set to "GitHub Actions", for `.github/workflows/pages.yml`.
+- **npm trusted publisher**, so the release workflow can publish without a token: on npmjs.com, package → Settings →
+  Trusted Publisher → GitHub Actions, with organization `Kareadita`, repository `ngx-virtual-scroller`, workflow
+  `release.yml` (the file name only) and no environment. Without it, `npm publish` fails with `404 Not Found`.
+- **GitHub Pages** source set to "GitHub Actions", for `.github/workflows/pages.yml`.
