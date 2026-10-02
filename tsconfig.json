@@ -18,7 +18,7 @@
     },
     "moduleResolution": "bundler",
     "importHelpers": true,
-    "target": "es2020",
+    "target": "es2022",
     "module": "es2020"
   },
   "angularCompilerOptions": {
@@ -26,5 +26,13 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  // Solution-style: the root owns no files, so editors type-check each file with the config of the project it
+  // belongs to (the specs need vitest/globals, the library must not see them)
+  "files": [],
+  "references": [
+    { "path": "./projects/ngx-virtual-scroller/tsconfig.lib.json" },
+    { "path": "./projects/ngx-virtual-scroller/tsconfig.spec.json" },
+    { "path": "./projects/demo/tsconfig.app.json" }
+  ]
 }

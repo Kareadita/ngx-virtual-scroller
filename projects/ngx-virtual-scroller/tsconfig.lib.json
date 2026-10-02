@@ -9,6 +9,7 @@
     "types": [],
     "allowSyntheticDefaultImports": true
   },
+  "include": ["src/**/*.ts"],
   "exclude": [
     "src/testing/**",
     "**/*.spec.ts"
