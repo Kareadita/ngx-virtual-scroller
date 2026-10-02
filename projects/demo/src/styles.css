@@ -1,0 +1,120 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --border: #d9dde3;
+  --text: #1d2430;
+  --text-muted: #5b6575;
+  --hover: #eef1f5;
+  --accent: #3559c7;
+  --accent-soft: #e6ecfb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171c;
+    --surface: #1c2027;
+    --border: #2f3540;
+    --text: #e6e9ee;
+    --text-muted: #9aa3b2;
+    --hover: #262b34;
+    --accent: #8aa6ff;
+    --accent-soft: #232c45;
+  }
+}
+
+/*
+ * With parentScroll = window the scroller measures document.scrollingElement, which is only viewport-sized when <html>
+ * is constrained.
+ */
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    15px/1.4 system-ui,
+    sans-serif;
+}
+
+h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.4rem;
+}
+
+.lede {
+  max-width: 60rem;
+  margin: 0 0 0.75rem;
+  color: var(--text-muted);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+pre {
+  overflow-x: auto;
+  margin: 0.5rem 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+button {
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--hover);
+}
+
+button[aria-pressed='true'],
+[role='tab'][aria-selected='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* A scroll viewport sized to the window, so resizing the window resizes it */
+.viewport {
+  display: block;
+  box-sizing: border-box;
+  height: calc(100vh - 14rem);
+  min-height: 16rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.row {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.badge {
+  min-width: 3.5rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}

@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing (OIDC) needs npm 11.5.1+, newer than some Node 24 releases bundle
+      - run: npm install -g npm@^11.5.1
+      - run: npm ci
+      - name: Check tag matches package version
+        run: |
+          version=$(node -p "require('./projects/ngx-virtual-scroller/package.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package version v$version"
+            exit 1
+          fi
+      - run: npx ng build ngx-virtual-scroller
+      # Uses npm trusted publishing (OIDC), configured on npmjs.com for this repo and workflow.
+      # Prereleases (e.g. 22.1.0-rc.0) go to the "next" dist-tag so they don't become "latest".
+      - name: Publish
+        working-directory: dist/ngx-virtual-scroller
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [[ "$version" == *-* ]]; then
+            npm publish --tag next
+          else
+            npm publish
+          fi

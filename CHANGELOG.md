@@ -1,3 +1,39 @@
+# v22.0.0
+
+Supports Angular 22+ in zoneless apps only (`@angular/core` and `@angular/common` `^22.0.0`). From here on, each Angular major gets a matching library major. Stay on 20.0.1 if you need Angular 20–21 or zone.js. 20.0.1 is the last 20.x release.
+
+Demo and docs: https://kareadita.github.io/ngx-virtual-scroller/
+
+## Breaking changes
+
+* Requires Angular 22 and assumes a zoneless app. All `NgZone` handling is gone.
+* Removed the `executeRefreshOutsideAngularZone` input and option.
+* Removed the `checkResizeInterval` input and option. A `ResizeObserver` now detects size changes, so no polling is needed.
+* Removed the `'virtual-scroller-default-options'` string token. Provide defaults with `provideVirtualScrollerOptions({...})`, or provide the `VIRTUAL_SCROLLER_DEFAULT_OPTIONS` token yourself.
+* In-place changes to `items` (`push`, `splice`, …) are no longer detected because `ngDoCheck` is gone. Assign a new array instead.
+* `@tweenjs/tween.js` is no longer a peer dependency. Animated scrolling (`scrollAnimationTime`) uses a built-in helper with the same ease-out curve.
+* `vsUpdate`, `vsChange`, `vsStart` and `vsEnd` are now `output()`s instead of `EventEmitter`s. Template bindings work as before. `.subscribe()` still works, but it now returns an `OutputRefSubscription` instead of an RxJS `Subscription`.
+* Stricter types: `childWidth`, `childHeight`, `scrollbarWidth`, `scrollbarHeight`, `ssrChildWidth` and `ssrChildHeight` are `number | undefined`. `parentScroll` accepts `undefined`. Entries in `WrapGroupDimensions.maxChildSizePerWrapGroup` can be `undefined`.
+* Zoneless apps don't run change detection after completion callbacks (for example the `scrollToIndex` callback). If a callback updates what a template shows, store that state in a signal.
+
+## Deprecations
+
+* `VirtualScrollerModule` is deprecated. `VirtualScrollerComponent` is standalone, so import it directly. Default options are provided in root.
+
+## Fixes
+
+* Rows no longer jump while you scroll in zoneless apps. The content padding is now rendered in the same pass as the items. This replaces the 20.0.1 `appRef.tick()` workaround.
+* `viewPortItems` and `viewPortInfo` are backed by signals, so `OnPush` templates that read them update without `markForCheck()`, including scroll metrics like `maxScrollPosition`.
+* In fixed-size mode, the item size is measured as the distance between rows (or columns), not as the item's box. Grids with a CSS `gap` and lists with collapsing vertical margins no longer drift and jump as rows are recycled.
+* A scroller hidden with `display: none` (for example in an inactive tab) that shares a `parentScroll` no longer caches 0px item sizes and then renders the whole list. It skips measuring while hidden and refreshes once it's shown.
+* Only slices Angular has actually rendered are measured. This fixes jumps with `enableUnequalChildrenSizes` and a scroll length that used the wrong item size until the first scroll.
+* With `parentScroll` set to an element or the window, `scrollToIndex` no longer lands a few pixels off. The scroller now counts borders instead of margins when it measures its offset from the scroll parent.
+
+## Other changes
+
+* `VirtualScrollerComponent` is a standalone `OnPush` component. Scroll listeners are passive, and `window` is accessed in an SSR-safe way.
+* New demo and docs site with one page per layout, Playwright end-to-end tests that fail if any frame paints with items out of place, and CI, Pages and npm release workflows.
+
 # v20.0.1
 
 Final 20.x release. Published as `@kareadita/ngx-virtual-scroller` (maintained fork of `@iharbeck/ngx-virtual-scroller` for Kavita).

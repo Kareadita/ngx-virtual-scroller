@@ -2,7 +2,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
@@ -12,27 +11,28 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
-    "paths": {
-      "ngx-virtual-scroller": [
-        "dist/ngx-virtual-scroller/ngx-virtual-scroller",
-        "dist/ngx-virtual-scroller"
-      ]
-    },
     "declaration": false,
     "experimentalDecorators": true,
+    "paths": {
+      "@kareadita/ngx-virtual-scroller": ["./projects/ngx-virtual-scroller/src/public-api.ts"]
+    },
     "moduleResolution": "bundler",
     "importHelpers": true,
-    "target": "es2020",
-    "module": "es2020",
-    "lib": [
-      "es2020",
-      "dom"
-    ]
+    "target": "es2022",
+    "module": "es2020"
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  // Solution-style: the root owns no files, so editors type-check each file with the config of the project it
+  // belongs to (the specs need vitest/globals, the library must not see them)
+  "files": [],
+  "references": [
+    { "path": "./projects/ngx-virtual-scroller/tsconfig.lib.json" },
+    { "path": "./projects/ngx-virtual-scroller/tsconfig.spec.json" },
+    { "path": "./projects/demo/tsconfig.app.json" }
+  ]
 }

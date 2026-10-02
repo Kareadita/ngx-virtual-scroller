@@ -10,7 +10,7 @@
       "prefix": "lib",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "builder": "@angular/build:ng-packagr",
           "options": {
             "project": "projects/ngx-virtual-scroller/ng-package.json"
           },
@@ -25,17 +25,119 @@
           "defaultConfiguration": "production"
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "main": "projects/ngx-virtual-scroller/src/test.ts",
             "tsConfig": "projects/ngx-virtual-scroller/tsconfig.spec.json",
-            "karmaConfig": "projects/ngx-virtual-scroller/karma.conf.js"
+            "exclude": [
+              "**/*.browser.spec.ts"
+            ],
+            "include": [
+              "**/*.spec.ts"
+            ]
+          },
+          "configurations": {
+            "browser": {
+              "browsers": [
+                "chromium"
+              ],
+              "headless": true,
+              "include": [
+                "**/*.browser.spec.ts"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/ngx-virtual-scroller/**/*.ts",
+              "projects/ngx-virtual-scroller/**/*.html"
+            ],
+            "eslintConfig": "projects/ngx-virtual-scroller/eslint.config.js"
+          }
+        }
+      }
+    },
+    "demo": {
+      "projectType": "application",
+      "root": "projects/demo",
+      "sourceRoot": "projects/demo/src",
+      "prefix": "demo",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/demo/src/main.ts",
+            "tsConfig": "projects/demo/tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/demo/public"
+              }
+            ],
+            "styles": [
+              "projects/demo/src/styles.css"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "600kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "demo:build:production"
+            },
+            "development": {
+              "buildTarget": "demo:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/demo/**/*.ts",
+              "projects/demo/**/*.html"
+            ],
+            "eslintConfig": "projects/demo/eslint.config.js"
           }
         }
       }
     }
   },
   "cli": {
+    "packageManager": "npm",
     "analytics": false
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "style": "css",
+      "changeDetection": "OnPush"
+    }
   }
 }

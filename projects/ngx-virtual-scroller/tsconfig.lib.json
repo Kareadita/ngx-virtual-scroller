@@ -7,13 +7,19 @@
     "declarationMap": true,
     "inlineSources": true,
     "types": [],
-    "strictNullChecks": false,
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false,
-    "noImplicitThis": false
+    "allowSyntheticDefaultImports": true
   },
+  "include": ["src/**/*.ts"],
   "exclude": [
-    "src/test.ts",
+    "src/testing/**",
     "**/*.spec.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
 }

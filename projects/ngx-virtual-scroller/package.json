@@ -1,14 +1,10 @@
 {
   "name": "@kareadita/ngx-virtual-scroller",
-  "version": "20.0.1",
-  "description": "Virtual scroll component for Angular. Maintained fork of iharbeck/ngx-virtual-scroller",
+  "version": "22.0.0",
+  "description": "Virtual scroll component for zoneless Angular. Maintained fork of iharbeck/ngx-virtual-scroller",
   "peerDependencies": {
-    "@angular/common": ">=20.0.0 <23.0.0",
-    "@angular/core": ">=20.0.0 <23.0.0",
-    "@tweenjs/tween.js": "^25.0.0"
-  },
-  "devDependencies": {
-    "@tweenjs/tween.js": "^25.0.0"
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0"
   },
   "repository": {
     "type": "git",
@@ -17,13 +13,12 @@
   },
   "keywords": [
     "virtual scroll",
+    "virtual scroller",
     "scroll",
     "ngx",
     "angular",
     "zoneless",
-    "angular 20",
-    "angular 21",
-    "angular 22"
+    "signals"
   ],
   "contributors": [
     {
@@ -49,5 +44,9 @@
   "homepage": "https://github.com/Kareadita/ngx-virtual-scroller#readme",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
 }
