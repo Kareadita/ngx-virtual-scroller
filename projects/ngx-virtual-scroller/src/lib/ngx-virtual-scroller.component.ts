@@ -983,13 +983,17 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (this.parentScroll) {
+      // Items are laid out inside this element's padding box, and scroll positions count from the scroll element's
+      // padding box, so borders count and margins don't
+      const element = this.element.nativeElement;
       const scrollElement = this.getScrollElement();
-      const elementClientRect = this.getElementSize(this.element.nativeElement);
-      const scrollClientRect = this.getElementSize(scrollElement);
+      const elementRect = element.getBoundingClientRect();
+      const scrollRect = scrollElement.getBoundingClientRect();
       if (this.horizontal) {
-        offset += elementClientRect.left - scrollClientRect.left;
+        offset +=
+          elementRect.left + element.clientLeft - (scrollRect.left + scrollElement.clientLeft);
       } else {
-        offset += elementClientRect.top - scrollClientRect.top;
+        offset += elementRect.top + element.clientTop - (scrollRect.top + scrollElement.clientTop);
       }
 
       if (!isWindow(this.parentScroll)) {
