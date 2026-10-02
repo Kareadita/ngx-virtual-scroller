@@ -1,0 +1,78 @@
+.shell {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  min-height: 100%;
+}
+
+/* Sticky, so the nav stays put while the window-scroll page scrolls the document */
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  box-sizing: border-box;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 1rem;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.brand {
+  display: block;
+  margin-bottom: 1rem;
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+nav a {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+nav a:hover {
+  background: var(--hover);
+}
+
+nav a.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.content {
+  min-width: 0;
+  padding: 1rem 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+}

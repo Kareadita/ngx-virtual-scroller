@@ -13,6 +13,9 @@
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
+    "paths": {
+      "@kareadita/ngx-virtual-scroller": ["./projects/ngx-virtual-scroller/src/public-api.ts"]
+    },
     "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "es2020",

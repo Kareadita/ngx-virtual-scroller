@@ -1,0 +1,25 @@
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="https://github.com/Kareadita/ngx-virtual-scroller"
+      >ngx-virtual-scroller</a
+    >
+    <nav aria-label="Scenarios">
+      <ul>
+        @for (scenario of scenarios; track scenario.path) {
+          <li>
+            <a
+              [routerLink]="scenario.path"
+              routerLinkActive="active"
+              [attr.data-scenario]="scenario.path"
+            >
+              {{ scenario.label }}
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  </aside>
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>
