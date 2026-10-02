@@ -388,8 +388,8 @@ the pointer leaves the list.
 ## Contributing
 
 Issues and pull requests are welcome at [Kareadita/ngx-virtual-scroller](https://github.com/Kareadita/ngx-virtual-scroller).
-`npm run verify` runs the linter, unit and browser tests, both builds and the end-to-end tests. `npm start` serves the
-demo.
+See [CONTRIBUTING.md](https://github.com/Kareadita/ngx-virtual-scroller/blob/master/CONTRIBUTING.md) for setup, the
+checks to run, and how releases are made.
 
 ## Authors
 
