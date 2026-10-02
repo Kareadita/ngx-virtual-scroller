@@ -15,6 +15,8 @@ const ROW_HEIGHT = 50;
 const LIST_HEIGHT = 40;
 const ITEM_WIDTH = 80;
 const unequalHeight = (i: number) => 30 + (i % 5) * 10;
+// The demo's unequal page: bigger differences between neighbours, so a size cached for the wrong item shows
+const steppedHeight = (i: number) => 40 + ((i * 7) % 5) * 18;
 
 @Component({
   selector: 'vs-paint-host',
@@ -95,7 +97,7 @@ const unequalHeight = (i: number) => 30 + (i % 5) * 10;
             <div
               class="item"
               [attr.data-index]="item"
-              [style.height.px]="unequal() ? unequalHeight(item) : listHeight"
+              [style.height.px]="unequal() ? heightOf()(item) : listHeight"
               [style.margin-top.px]="itemMargin()"
               [style.margin-bottom.px]="itemMargin()"
             >
@@ -115,7 +117,7 @@ class PaintHost {
   readonly striped = signal(false);
   readonly itemMargin = signal(0);
   readonly gridGap = signal(0);
-  readonly unequalHeight = unequalHeight;
+  readonly heightOf = signal(unequalHeight);
   readonly rowHeight = ROW_HEIGHT;
   readonly listHeight = LIST_HEIGHT;
   readonly itemWidth = ITEM_WIDTH;
@@ -126,19 +128,28 @@ interface Scenario {
   layout: Layout;
   useMargin?: boolean;
   unequal?: boolean;
+  /** Item height in unequal mode; defaults to unequalHeight */
+  heightOf?: (index: number) => number;
   striped?: boolean;
   itemMargin?: number;
   gridGap?: number;
   /** Space between items that no item covers, allowed at the viewport edges */
   spacing?: number;
+  /** Pixels scrolled per frame; defaults to 25 */
+  step?: number;
   expectedOffset: (index: number) => number;
   itemSize: (index: number) => number;
 }
 
-const unequalOffsets: number[] = [0];
-for (let i = 1; i <= 2000; ++i) {
-  unequalOffsets[i] = unequalOffsets[i - 1] + unequalHeight(i - 1);
-}
+const offsetsOf = (height: (index: number) => number) => {
+  const offsets = [0];
+  for (let i = 1; i <= 2000; ++i) {
+    offsets[i] = offsets[i - 1] + height(i - 1);
+  }
+  return offsets;
+};
+const unequalOffsets = offsetsOf(unequalHeight);
+const steppedOffsets = offsetsOf(steppedHeight);
 
 const ITEM_MARGIN = 5;
 const GRID_GAP = 10;
@@ -196,6 +207,16 @@ const scenarios: Scenario[] = [
     itemSize: unequalHeight,
   },
   {
+    // Neighbours differ by up to 72px and the scroll moves more than an item per frame
+    name: 'vertical list (unequal sizes, large steps)',
+    layout: 'list',
+    unequal: true,
+    heightOf: steppedHeight,
+    step: 50,
+    expectedOffset: (i) => steppedOffsets[i],
+    itemSize: steppedHeight,
+  },
+  {
     name: 'horizontal list',
     layout: 'horizontal',
     expectedOffset: (i) => i * ITEM_WIDTH,
@@ -233,6 +254,7 @@ describe('paint consistency (zoneless)', () => {
       host.layout.set(scenario.layout);
       host.useMargin.set(!!scenario.useMargin);
       host.unequal.set(!!scenario.unequal);
+      host.heightOf.set(scenario.heightOf ?? unequalHeight);
       host.striped.set(!!scenario.striped);
       host.itemMargin.set(scenario.itemMargin ?? 0);
       host.gridGap.set(scenario.gridGap ?? 0);
@@ -252,8 +274,9 @@ describe('paint consistency (zoneless)', () => {
         horizontal,
       };
 
-      const down = await scrollAndProbe({ ...probe, step: 25 });
-      const up = await scrollAndProbe({ ...probe, step: -25 });
+      const step = scenario.step ?? 25;
+      const down = await scrollAndProbe({ ...probe, step });
+      const up = await scrollAndProbe({ ...probe, step: -step });
 
       expect(probe.items().length, 'only a window of items is rendered').toBeLessThan(100);
       expect(down.maxIndexSeen, 'the scroll moved through the list').toBeGreaterThan(40);

@@ -2,6 +2,7 @@
    read their properties, so the public item type stays `any` */
 import { isPlatformServer } from '@angular/common';
 import {
+  afterEveryRender,
   ChangeDetectionStrategy,
   Component,
   contentChild,
@@ -185,6 +186,20 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
   protected readonly _viewport = signal<IViewport | undefined>(undefined);
   protected readonly renderedScrollLength = signal<number | null>(null);
   protected readonly renderedPadding = signal<number | null>(null);
+
+  // Measuring reads the rendered children as the slice in previousViewPort, which only holds once Angular has rendered
+  // that slice. A pass can run in between: several refreshes queued for the same frame, or a refresh's follow-up pass
+  // running before the render the previous pass scheduled. Measuring then attributes the old children's sizes to the
+  // new slice. sliceVersion counts the slices handed out; renderedSliceVersion is the last one rendered.
+  protected sliceVersion = 0;
+  protected renderedSliceVersion = 0;
+  private readonly trackRenders = afterEveryRender({
+    read: () => (this.renderedSliceVersion = this.sliceVersion),
+  });
+
+  protected get isSliceRendered(): boolean {
+    return this.renderedSliceVersion === this.sliceVersion;
+  }
 
   /** The items currently rendered: the visible slice of `items`, plus the buffer */
   public get viewPortItems(): any[] {
@@ -801,8 +816,20 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
       };
     }
 
+    // Frames a follow-up pass may wait for the previous slice to render. Bounded, so a consumer that never renders the
+    // slice can't stall the scroller.
+    let renderWaits = 3;
+
     const refresh = () => {
       if (this.destroyed) {
+        return;
+      }
+
+      // The children don't show the current slice yet, so measuring now would cache sizes for the wrong items. A
+      // scroll-event pass can't wait: it has to render in this frame, before paint, and it skips caching instead (see
+      // calculateDimensions). Any other pass measures in the next frame, after the render.
+      if (!immediate && !this.isAngularUniversalSSR && !this.isSliceRendered && renderWaits-- > 0) {
+        requestAnimationFrame(refresh);
         return;
       }
 
@@ -851,6 +878,7 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
         };
 
         // update the scroll list to trigger re-render of components in viewport
+        ++this.sliceVersion;
         this._viewPortItems.set(
           viewport.startIndexWithBuffer >= 0 && viewport.endIndexWithBuffer >= 0
             ? this.items.slice(viewport.startIndexWithBuffer, viewport.endIndexWithBuffer + 1)
@@ -1185,7 +1213,10 @@ export class VirtualScrollerComponent implements OnInit, OnChanges, OnDestroy {
       let sumOfVisibleMaxHeights = 0;
       wrapGroupsPerPage = 0;
 
-      for (const child of Array.from(content.children) as HTMLElement[]) {
+      // Children that don't show previousViewPort's slice yet would cache their sizes against the wrong items. Then
+      // estimate from the sizes already known instead.
+      const children = this.isSliceRendered ? Array.from(content.children) : [];
+      for (const child of children as HTMLElement[]) {
         ++arrayStartIndex;
         const clientRect = this.getElementSize(child);
 
