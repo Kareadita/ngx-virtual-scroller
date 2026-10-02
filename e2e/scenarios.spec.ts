@@ -303,3 +303,52 @@ test.describe('smoke', () => {
     expect(ids).toEqual(Array.from({ length: ids.length }, (_, i) => ids[0] + i));
   });
 });
+
+test.describe('overview', () => {
+  test('introduces the library and links every example', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('ngx-virtual-scroller');
+    const cards = await page
+      .locator('.cards a')
+      .evaluateAll((links) => links.map((link) => link.getAttribute('href')!.replace(/^\//, '')));
+    const nav = await page
+      .locator('nav [data-scenario]')
+      .evaluateAll((links) => links.map((link) => link.getAttribute('data-scenario')!));
+    expect(cards.sort()).toEqual(nav.sort());
+  });
+
+  test('the live list renders a window of 100,000 rows and keeps them in place', async ({
+    page,
+  }) => {
+    await open(page, '');
+    expect(await itemCount(page)).toBe(100_000);
+    await scrollBothWays(page, { path: '' }, 100_000);
+  });
+});
+
+test('horizontal: right to left renders and covers the strip while scrolling', async ({ page }) => {
+  await open(page, 'horizontal');
+  await page.getByRole('button', { name: 'Right to left' }).click();
+  const scroller = page.locator('virtual-scroller');
+  await expect(scroller).toHaveClass(/rtl/);
+  await scroller.evaluate((element) => (element.scrollLeft = 3000));
+  await page.waitForTimeout(500);
+
+  const layout = await scroller.evaluate((element) => {
+    const host = element.getBoundingClientRect();
+    const items = [...element.querySelectorAll<HTMLElement>('[data-index]')].map(
+      (item) => [Number(item.dataset['index']), item.getBoundingClientRect()] as const,
+    );
+    return {
+      minId: Math.min(...items.map(([id]) => id)),
+      rendered: items.length,
+      start: Math.min(...items.map(([, rect]) => rect.left)) - host.left,
+      end: host.right - Math.max(...items.map(([, rect]) => rect.right)),
+    };
+  });
+  expect(layout.minId, 'scrolled past the first items').toBeGreaterThan(10);
+  expect(layout.rendered, 'only a window of items is rendered').toBeLessThan(100);
+  // The strip is mirrored, so either edge may have a card's 12px margin (plus the 1px border)
+  expect(layout.start, 'covered at the left edge').toBeLessThanOrEqual(14);
+  expect(layout.end, 'covered at the right edge').toBeLessThanOrEqual(14);
+});

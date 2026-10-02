@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { VirtualScrollerComponent } from '@kareadita/ngx-virtual-scroller';
 import { makeItems } from '../shared/data';
 
-/** Mirrors Kavita's series detail: one scroll parent shared by a scroller per tab, inactive tabs display: none */
+/** One scroll parent shared by a scroller per tab; inactive tabs are display: none */
 @Component({
   selector: 'demo-tabs-page',
   imports: [VirtualScrollerComponent],

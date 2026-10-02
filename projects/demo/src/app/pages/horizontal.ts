@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { VirtualScrollerComponent } from '@kareadita/ngx-virtual-scroller';
 import { makeItems } from '../shared/data';
 import { ScrollControls } from '../shared/scroll-controls';
@@ -12,9 +12,15 @@ import { ScrollControls } from '../shared/scroll-controls';
     <p class="lede">
       <code>[horizontal]="true"</code>: 5,000 cards, 150px wide plus a 12px right margin. Horizontal
       margins don't collapse, so the item size is the box plus its margins.
+      <code>[RTL]="true"</code>
+      lays the list out right to left.
     </p>
-    <demo-scroll-controls [scroller]="scroll" [count]="items.length" />
-    <virtual-scroller #scroll class="strip" [items]="items" [horizontal]="true">
+    <demo-scroll-controls [scroller]="scroll" [count]="items.length">
+      <button type="button" [attr.aria-pressed]="rtl()" (click)="rtl.set(!rtl())">
+        Right to left
+      </button>
+    </demo-scroll-controls>
+    <virtual-scroller #scroll class="strip" [items]="items" [horizontal]="true" [RTL]="rtl()">
       @for (item of scroll.viewPortItems; track item.id) {
         <div class="card" [attr.data-index]="item.id">
           <span class="badge">#{{ item.id }}</span>
@@ -53,4 +59,5 @@ import { ScrollControls } from '../shared/scroll-controls';
 })
 export class HorizontalPage {
   protected readonly items = makeItems(5000);
+  protected readonly rtl = signal(false);
 }

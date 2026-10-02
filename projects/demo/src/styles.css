@@ -25,7 +25,7 @@
 
 /*
  * With parentScroll = window the scroller measures document.scrollingElement, which is only viewport-sized when <html>
- * is constrained. Kavita does the same.
+ * is constrained.
  */
 html {
   height: 100%;
@@ -57,6 +57,17 @@ input {
   font: inherit;
 }
 
+pre {
+  overflow-x: auto;
+  margin: 0.5rem 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
 button {
   padding: 0.2rem 0.7rem;
   border: 1px solid var(--border);
@@ -70,6 +81,7 @@ button:hover {
   background: var(--hover);
 }
 
+button[aria-pressed='true'],
 [role='tab'][aria-selected='true'] {
   border-color: var(--accent);
   color: var(--accent);

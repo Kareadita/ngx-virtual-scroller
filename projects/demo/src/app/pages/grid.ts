@@ -3,7 +3,7 @@ import { VirtualScrollerComponent } from '@kareadita/ngx-virtual-scroller';
 import { makeItems } from '../shared/data';
 import { ScrollControls } from '../shared/scroll-controls';
 
-/** Mirrors Kavita's library card grid: a #container CSS grid with a gap, bufferAmount 1 */
+/** A responsive card grid: a #container CSS grid with a gap, bufferAmount 1 */
 @Component({
   selector: 'demo-grid-page',
   imports: [VirtualScrollerComponent, ScrollControls],
@@ -12,9 +12,8 @@ import { ScrollControls } from '../shared/scroll-controls';
     <h1>Card grid</h1>
     <p class="lede">
       A responsive CSS grid inside a <code>#container</code>, with a 16px <code>gap</code> and
-      <code>bufferAmount</code> 1, like Kavita's library page. The gap isn't part of any card's box,
-      so the scroller measures the item size as the distance between rows. Resize the window to
-      change the number of columns.
+      <code>bufferAmount</code> 1. The gap isn't part of any card's box, so the scroller measures
+      the item size as the distance between rows. Resize the window to change the number of columns.
     </p>
     <demo-scroll-controls [scroller]="scroll" [count]="items.length" />
     <virtual-scroller #scroll class="viewport" [items]="items" [bufferAmount]="1">

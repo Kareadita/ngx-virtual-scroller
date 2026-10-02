@@ -3,7 +3,7 @@ import { VirtualScrollerComponent } from '@kareadita/ngx-virtual-scroller';
 import { makeItems } from '../shared/data';
 import { ScrollControls } from '../shared/scroll-controls';
 
-/** Mirrors Kavita's .companion-bar: the scroll parent only becomes scrollable while hovered */
+/** A side panel that only becomes scrollable while hovered */
 @Component({
   selector: 'demo-hover-scroll-page',
   imports: [VirtualScrollerComponent, ScrollControls],

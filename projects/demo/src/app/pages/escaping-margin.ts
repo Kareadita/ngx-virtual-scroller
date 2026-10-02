@@ -3,7 +3,7 @@ import { VirtualScrollerComponent } from '@kareadita/ngx-virtual-scroller';
 import { makeItems } from '../shared/data';
 import { ScrollControls } from '../shared/scroll-controls';
 
-/** Mirrors Kavita's profile reviews before the fix: a heading margin collapses out through the top of its row */
+/** A heading's margin collapses out through the top of its row, so rows sit further apart than their boxes */
 @Component({
   selector: 'demo-escaping-margin-page',
   imports: [VirtualScrollerComponent, ScrollControls],
@@ -34,13 +34,13 @@ import { ScrollControls } from '../shared/scroll-controls';
       padding: 0 1rem;
       border-bottom: 1px solid var(--border);
     }
-    h2 {
+    .entry h2 {
       height: 22px;
       margin: 18px 0 4px;
       font-size: 1rem;
       line-height: 22px;
     }
-    p {
+    .entry p {
       height: 20px;
       margin: 0 0 8px;
       color: var(--text-muted);

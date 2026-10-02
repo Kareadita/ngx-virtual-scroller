@@ -55,7 +55,7 @@ export class ScrollControls {
 
   protected scrollTo(index: number): void {
     if (!Number.isNaN(index)) {
-      // No animation (0 ms), like Kavita
+      // No animation (0 ms), so the item is in place as soon as the click is handled
       this.scroller().scrollToIndex(index, true, 0, 0);
     }
   }

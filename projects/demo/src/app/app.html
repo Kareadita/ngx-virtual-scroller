@@ -1,23 +1,39 @@
 <div class="shell">
   <aside class="sidebar">
-    <a class="brand" href="https://github.com/Kareadita/ngx-virtual-scroller"
-      >ngx-virtual-scroller</a
-    >
-    <nav aria-label="Scenarios">
+    <a class="brand" routerLink="/">
+      <span class="brand-name">ngx-virtual-scroller</span>
+      <span class="brand-tagline">Virtual scrolling for zoneless Angular</span>
+    </a>
+    <nav aria-label="Demo">
       <ul>
-        @for (scenario of scenarios; track scenario.path) {
-          <li>
-            <a
-              [routerLink]="scenario.path"
-              routerLinkActive="active"
-              [attr.data-scenario]="scenario.path"
-            >
-              {{ scenario.label }}
-            </a>
-          </li>
-        }
+        <li>
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            Overview
+          </a>
+        </li>
       </ul>
+      @for (group of groups; track group.name) {
+        <h2 class="group">{{ group.name }}</h2>
+        <ul>
+          @for (scenario of group.scenarios; track scenario.path) {
+            <li>
+              <a
+                [routerLink]="scenario.path"
+                routerLinkActive="active"
+                [attr.data-scenario]="scenario.path"
+              >
+                {{ scenario.label }}
+              </a>
+            </li>
+          }
+        </ul>
+      }
     </nav>
+    <p class="links">
+      <a href="https://github.com/Kareadita/ngx-virtual-scroller">GitHub</a>
+      ·
+      <a href="https://www.npmjs.com/package/@kareadita/ngx-virtual-scroller">npm</a>
+    </p>
   </aside>
   <main class="content">
     <router-outlet />

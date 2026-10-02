@@ -21,8 +21,39 @@
   display: block;
   margin-bottom: 1rem;
   color: var(--text);
-  font-weight: 700;
   text-decoration: none;
+}
+
+.brand-name {
+  display: block;
+  font-weight: 700;
+}
+
+.brand-tagline {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.group {
+  margin: 1rem 0 0.25rem;
+  padding: 0 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.links {
+  margin: 1.25rem 0 0;
+  padding: 0 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.links a {
+  color: var(--accent);
 }
 
 ul {
@@ -70,6 +101,10 @@ nav a.active {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
+  }
+
+  .group {
+    margin-top: 0.5rem;
   }
 
   .content {

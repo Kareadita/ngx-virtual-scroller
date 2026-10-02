@@ -31,7 +31,7 @@ import { ScrollControls } from '../shared/scroll-controls';
     .row {
       height: 112px;
     }
-    img {
+    .row img {
       flex: none;
       width: 64px;
       height: 96px;

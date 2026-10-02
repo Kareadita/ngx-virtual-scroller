@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { SCENARIOS } from './scenarios';
+import { SCENARIO_GROUPS, SCENARIOS } from './scenarios';
 
 @Component({
   selector: 'demo-root',
@@ -10,5 +10,8 @@ import { SCENARIOS } from './scenarios';
   styleUrl: './app.css',
 })
 export class App {
-  protected readonly scenarios = SCENARIOS;
+  protected readonly groups = SCENARIO_GROUPS.map((group) => ({
+    name: group,
+    scenarios: SCENARIOS.filter((scenario) => scenario.group === group),
+  }));
 }

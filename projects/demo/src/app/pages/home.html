@@ -1,0 +1,169 @@
+<header class="hero">
+  <h1>ngx-virtual-scroller</h1>
+  <p class="tagline">
+    Render a list of any length with a few dozen DOM nodes. A virtual scroller for zoneless Angular:
+    vertical or horizontal, single or multi-column, fixed or variable sizes.
+  </p>
+  <ul class="badges" aria-label="Highlights">
+    <li>Angular 22+</li>
+    <li>Zoneless</li>
+    <li>Signals</li>
+    <li>Standalone</li>
+    <li>MIT</li>
+  </ul>
+  <p class="actions">
+    <a class="button primary" href="https://github.com/Kareadita/ngx-virtual-scroller">GitHub</a>
+    <a class="button" href="https://www.npmjs.com/package/@kareadita/ngx-virtual-scroller">npm</a>
+    <a class="button" routerLink="/list">Examples</a>
+  </p>
+</header>
+
+<section aria-labelledby="live">
+  <h2 id="live">100,000 rows, live</h2>
+  <p>
+    Only the rows in view, plus a small buffer, exist in the DOM. Scroll it, or jump straight to any
+    row.
+  </p>
+  <demo-scroll-controls [scroller]="scroll" [count]="items.length" />
+  <virtual-scroller #scroll class="live" [items]="items">
+    @for (item of scroll.viewPortItems; track item.id) {
+      <div class="row" [attr.data-index]="item.id">
+        <span class="badge">{{ item.id }}</span>
+        {{ item.name }}
+      </div>
+    }
+  </virtual-scroller>
+</section>
+
+<section aria-labelledby="how">
+  <h2 id="how">How it works</h2>
+  <p>
+    The scroller measures your items, renders just enough of them to fill the viewport, and pads the
+    space before and after so the scrollbar behaves as if every item were there. As you scroll, it
+    swaps in the next slice of items. The number of DOM elements stays small and constant however
+    long the list grows, so an "infinite" list costs about the same as a short one.
+  </p>
+</section>
+
+<section aria-labelledby="features">
+  <h2 id="features">Features</h2>
+  <ul class="features">
+    <li>
+      <h3>Built for zoneless Angular</h3>
+      <p>
+        No zone.js. <code>viewPortItems</code> and <code>viewPortInfo</code> are signal-backed, so
+        OnPush templates update on their own.
+      </p>
+    </li>
+    <li>
+      <h3>Lists, grids and tables</h3>
+      <p>
+        Multi-column grids are detected from your CSS layout. Render rows into a table body.
+        <a routerLink="/grid">Grid</a> · <a routerLink="/table">Table</a>
+      </p>
+    </li>
+    <li>
+      <h3>Horizontal and RTL</h3>
+      <p>Scroll sideways, in either direction. <a routerLink="/horizontal">Example</a></p>
+    </li>
+    <li>
+      <h3>Items of any size</h3>
+      <p>
+        Fixed sizes are measured once, gaps and collapsing margins included. Variable sizes are
+        measured per item. <a routerLink="/unequal">Example</a>
+      </p>
+    </li>
+    <li>
+      <h3>Any scroll container</h3>
+      <p>
+        Scroll the list itself, an ancestor with other content, or the whole page.
+        <a routerLink="/parent-scroll">Parent</a> · <a routerLink="/window-scroll">Window</a>
+      </p>
+    </li>
+    <li>
+      <h3>Infinite loading</h3>
+      <p>
+        <code>(vsEnd)</code> tells you when the end is in view, so you can fetch the next page.
+        <a routerLink="/load-more">Example</a>
+      </p>
+    </li>
+    <li>
+      <h3>Scroll to anything</h3>
+      <p>
+        <code>scrollToIndex</code>, <code>scrollInto</code> and <code>scrollToPosition</code>, with
+        an optional eased animation.
+      </p>
+    </li>
+    <li>
+      <h3>No extra dependencies</h3>
+      <p>Angular and tslib, nothing else.</p>
+    </li>
+  </ul>
+</section>
+
+<section aria-labelledby="start">
+  <h2 id="start">Get started</h2>
+  <pre><code>{{ install }}</code></pre>
+  <p>
+    Import the standalone component, and render <code>scroll.viewPortItems</code> instead of your
+    full array. Give the scroller a height, or point <code>[parentScroll]</code> at the element that
+    scrolls.
+  </p>
+  <pre><code>{{ quickStart }}</code></pre>
+  <p>Set defaults for every scroller with <code>provideVirtualScrollerOptions</code>:</p>
+  <pre><code>{{ options }}</code></pre>
+  <p>
+    To change the list, assign a new <code>items</code> array. Changes made to the same array in
+    place aren't detected.
+  </p>
+</section>
+
+<section aria-labelledby="migrate">
+  <h2 id="migrate">Coming from ngx-virtual-scroller?</h2>
+  <p>
+    This is the maintained fork of <code>&#64;iharbeck/ngx-virtual-scroller</code>, which continued
+    Rinto Jose's original <code>ngx-virtual-scroller</code>. The API is the same; version 22 drops
+    what zoneless Angular no longer needs:
+  </p>
+  <ul class="changes">
+    <li>Angular 22 or later, zoneless only. Each Angular major gets a matching major here.</li>
+    <li>
+      <code>VirtualScrollerComponent</code> is standalone. <code>VirtualScrollerModule</code> still
+      works, but is deprecated.
+    </li>
+    <li>
+      <code>provideVirtualScrollerOptions()</code> (or the
+      <code>VIRTUAL_SCROLLER_DEFAULT_OPTIONS</code> token) replaces the
+      <code>'virtual-scroller-default-options'</code> string token.
+    </li>
+    <li>
+      Removed: <code>executeRefreshOutsideAngularZone</code>, <code>checkResizeInterval</code>
+      (resizes are observed instead of polled), detection of in-place array changes, and the
+      <code>&#64;tweenjs/tween.js</code> dependency.
+    </li>
+  </ul>
+  <p>To switch without touching your imports, alias the old name in <code>package.json</code>:</p>
+  <pre><code>{{ alias }}</code></pre>
+</section>
+
+<section aria-labelledby="examples">
+  <h2 id="examples">Examples</h2>
+  @for (group of groups; track group.name) {
+    <h3 class="group">{{ group.name }}</h3>
+    <ul class="cards">
+      @for (scenario of group.scenarios; track scenario.path) {
+        <li>
+          <a [routerLink]="'/' + scenario.path">
+            <strong>{{ scenario.label }}</strong>
+            <span>{{ scenario.description }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<footer class="footer">
+  MIT licensed. By Rinto Jose, Devin Garner, Pavel Kukushkin, Ingo Harbeck, Bernhard Behrendt and
+  contributors; maintained by Kareadita.
+</footer>

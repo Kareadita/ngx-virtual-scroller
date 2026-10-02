@@ -9,7 +9,7 @@ import { routes } from './app.routes';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    // The library supports zoneless only, which is also how Kavita runs
+    // The library supports zoneless Angular only
     provideZonelessChangeDetection(),
     provideRouter(routes),
   ],

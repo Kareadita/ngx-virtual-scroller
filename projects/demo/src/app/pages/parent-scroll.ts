@@ -40,7 +40,7 @@ import { ScrollControls } from '../shared/scroll-controls';
       padding: 1rem;
       background: var(--accent-soft);
     }
-    h2 {
+    .intro h2 {
       margin: 0 0 0.5rem;
     }
     .row {

@@ -3,7 +3,7 @@ import { VirtualScrollerComponent } from '@kareadita/ngx-virtual-scroller';
 import { makeItems } from '../shared/data';
 import { ScrollControls } from '../shared/scroll-controls';
 
-/** Mirrors Kavita's reading list: items with vertical margins that collapse between neighbours */
+/** Items with vertical margins that collapse between neighbours */
 @Component({
   selector: 'demo-margins-page',
   imports: [VirtualScrollerComponent, ScrollControls],
